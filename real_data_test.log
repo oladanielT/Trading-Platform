@@ -1,0 +1,108 @@
+2026-01-07 23:28:01,423 - __main__ - INFO - ================================================================================
+2026-01-07 23:28:01,423 - __main__ - INFO - TRADING PLATFORM INITIALIZATION
+2026-01-07 23:28:01,423 - __main__ - INFO - ================================================================================
+2026-01-07 23:28:01,423 - __main__ - INFO - Loading configuration from LIVE_DATA_CONFIG.yaml
+2026-01-07 23:28:01,434 - __main__ - INFO - Configuration loaded successfully
+2026-01-07 23:28:01,434 - __main__ - INFO - [1/6] Initializing Core Module (Environment & State)
+2026-01-07 23:28:01,434 - __main__ - INFO -    ✓ TradingState initialized: paper
+2026-01-07 23:28:01,434 - core.environment - WARNING - Environment file not found: .env
+2026-01-07 23:28:01,434 - __main__ - INFO -    ✓ EnvironmentManager initialized
+2026-01-07 23:28:01,434 - __main__ - INFO - [2/6] Initializing Monitoring Module (Logger & Metrics)
+2026-01-07 23:28:01,434 - __main__ - INFO -    ✓ LoggerManager configured
+2026-01-07 23:28:01,435 - __main__ - INFO -    ✓ MetricsCollector initialized
+2026-01-07 23:28:01,435 - __main__ - INFO - [3/6] Initializing Data Module (Exchange & Market Feed)
+2026-01-07 23:28:01,449 - __main__ - INFO -    ✓ ExchangeConnector connected: binance (paper)
+2026-01-07 23:28:01,449 - data.market_feed - INFO - MarketFeed initialized with exchange: binance
+2026-01-07 23:28:01,449 - __main__ - INFO -    ✓ MarketFeed initialized
+2026-01-07 23:28:01,449 - __main__ - INFO - [4/6] Initializing Strategy Module (Signal Generation)
+2026-01-07 23:28:01,449 - __main__ - WARNING - [Strategy] Unknown strategy in multi_strategy: EMATrendStrategy
+2026-01-07 23:28:01,449 - strategies.base - INFO - Strategy 'ContinuationStrategy' initialized with parameters: {'lookback': 50, 'min_impulse_pct': 1.2, 'min_retracement': 0.15, 'max_retracement': 0.75, 'min_consolidation_candles': 3, 'max_consolidation_candles': 35, 'volume_surge_threshold': 1.1}
+2026-01-07 23:28:01,449 - strategies.base - INFO - Strategy 'FVGStrategy' initialized with parameters: {'lookback': 100, 'min_gap_size_pct': 0.2, 'max_gap_age': 150, 'require_volume_spike': False, 'volume_spike_multiplier': 1.5, 'require_momentum': False, 'min_fill_pct': 0.2, 'max_fill_pct': 0.98}
+2026-01-07 23:28:01,449 - strategies.base - INFO - Strategy 'MultiStrategyAggregator' initialized with parameters: {}
+2026-01-07 23:28:01,449 - strategies.base - INFO - Strategy 'RegimeBasedStrategy' initialized with parameters: {'regime_confidence_threshold': 0.5, 'reduce_confidence_in_marginal_regimes': True}
+2026-01-07 23:28:01,449 - strategies.regime_detector - INFO - RegimeDetector initialized with lookback=100, vol_thresholds=(0.010, 0.030)
+2026-01-07 23:28:01,449 - strategies.regime_strategy - INFO - RegimeBasedStrategy initialized: underlying=MultiStrategyAggregator, allowed_regimes=['trending', 'quiet', 'volatile'], confidence_threshold=0.5, volatile_override=False, readiness_gate=False, readiness_scaling=False [0.50-1.00], mode=live
+2026-01-07 23:28:01,449 - __main__ - INFO -    ✓ Strategy initialized: RegimeBasedStrategy
+2026-01-07 23:28:01,449 - __main__ - INFO - [5/10] Initializing Risk Module (Position Sizing & Drawdown Guard)
+2026-01-07 23:28:01,450 - risk.position_sizing - INFO - PositionSizer initialized: equity=$1000.00, risk=2.00%, method=fixed_fractional
+2026-01-07 23:28:01,450 - __main__ - INFO -    ✓ PositionSizer initialized: fixed_fractional
+2026-01-07 23:28:01,450 - risk.drawdown_guard - INFO - DrawdownGuard initialized: equity=$1000.00, max_daily_dd=5.0%, max_total_dd=20.0%
+2026-01-07 23:28:01,450 - __main__ - INFO -    ✓ DrawdownGuard initialized
+2026-01-07 23:28:01,450 - __main__ - INFO - [6/10] Initializing Portfolio Risk Module (Correlation & Exposure Control)
+2026-01-07 23:28:01,450 - __main__ - INFO -    ✓ PortfolioRiskManager disabled (set portfolio_risk.enabled=True to enable)
+2026-01-07 23:28:01,450 - __main__ - INFO - [7/10] Initializing Regime Capital Module (Capital Allocation)
+2026-01-07 23:28:01,450 - __main__ - INFO -    ✓ RegimeCapitalAllocator disabled (set regime_capital.enabled=True to enable)
+2026-01-07 23:28:01,450 - __main__ - INFO - [8/10] Initializing Execution Module (Broker & Order Manager)
+2026-01-07 23:28:01,450 - execution.broker - INFO - PaperBroker initialized: mode=paper, slippage=5.0bps, fees=10.0bps
+2026-01-07 23:28:01,450 - execution.broker - INFO - Broker initialized: mode=paper, initial_cash=$1,000.00
+2026-01-07 23:28:01,450 - __main__ - INFO -    ✓ Broker initialized: paper
+2026-01-07 23:28:01,450 - execution.order_manager - INFO - OrderManager initialized: max_concurrent=5, max_attempts=3
+2026-01-07 23:28:01,450 - __main__ - INFO -    ✓ OrderManager initialized
+2026-01-07 23:28:01,450 - __main__ - INFO - [9/10] Initializing Execution Reality Module (Market Impact)
+2026-01-07 23:28:01,451 - execution.execution_reality_engine - INFO - [EXECUTION_REALITY] Engine initialized: enabled=False, model=conservative, min_fill_prob=60.0%
+2026-01-07 23:28:01,451 - __main__ - INFO -    ✓ Execution Reality disabled (set execution_reality.enabled=True to enable)
+2026-01-07 23:28:01,451 - __main__ - INFO - [10/10] Initializing Optimization Module (Performance Enhancement)
+2026-01-07 23:28:01,451 - __main__ - INFO -    ✓ Optimization disabled (set optimization.enabled=True to enable)
+2026-01-07 23:28:01,451 - __main__ - INFO - ================================================================================
+2026-01-07 23:28:01,451 - __main__ - INFO - PLATFORM INITIALIZATION COMPLETE
+2026-01-07 23:28:01,451 - __main__ - INFO - ================================================================================
+2026-01-07 23:28:01,451 INFO platform.initialized {"environment":"paper","exchange":"binance","symbol":"BTC/USDT","strategy":"RegimeBasedStrategy"}
+2026-01-07 23:28:01,451 - __main__ - INFO - ================================================================================
+2026-01-07 23:28:01,451 - __main__ - INFO - STARTING TRADING LOOP
+2026-01-07 23:28:01,451 - __main__ - INFO - ================================================================================
+2026-01-07 23:28:01,451 INFO trading.loop_started {"environment":"paper","symbol":"BTC/USDT"}
+2026-01-07 23:28:01,451 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-07 23:28:01,451 - __main__ - INFO - Trading Loop Iteration - 2026-01-07T22:28:01.451982
+2026-01-07 23:28:01,452 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-07 23:28:05,104 - data.market_feed - INFO - Fetched 10 candles for BTC/USDT 1h (2026-01-07 13:00:00+00:00 to 2026-01-07 22:00:00+00:00)
+2026-01-07 23:28:05,104 - __main__ - INFO - [DATA] Received 10 candles
+2026-01-07 23:28:05,104 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-07 23:28:05,105 - __main__ - ERROR - Error in trading loop: Insufficient data for regime detection. Need at least 20 candles, got 10
+Traceback (most recent call last):
+  File "/home/oladan/Trading-Platform/main.py", line 945, in run_trading_loop
+    signal_output = self.strategy.generate_signal(
+  File "/home/oladan/Trading-Platform/strategies/regime_strategy.py", line 776, in generate_signal
+    regime_result = self.regime_detector.detect(market_data)
+  File "/home/oladan/Trading-Platform/strategies/regime_detector.py", line 127, in detect
+    raise ValueError(
+ValueError: Insufficient data for regime detection. Need at least 20 candles, got 10
+2026-01-07 23:28:05,107 ERROR trading.loop_error
+Traceback (most recent call last):
+  File "/home/oladan/Trading-Platform/main.py", line 945, in run_trading_loop
+    signal_output = self.strategy.generate_signal(
+  File "/home/oladan/Trading-Platform/strategies/regime_strategy.py", line 776, in generate_signal
+    regime_result = self.regime_detector.detect(market_data)
+  File "/home/oladan/Trading-Platform/strategies/regime_detector.py", line 127, in detect
+    raise ValueError(
+ValueError: Insufficient data for regime detection. Need at least 20 candles, got 10
+2026-01-07 23:28:05,108 - __main__ - ERROR - Fatal error: Insufficient data for regime detection. Need at least 20 candles, got 10
+Traceback (most recent call last):
+  File "/home/oladan/Trading-Platform/main.py", line 1404, in run
+    await self.run_trading_loop()
+  File "/home/oladan/Trading-Platform/main.py", line 945, in run_trading_loop
+    signal_output = self.strategy.generate_signal(
+  File "/home/oladan/Trading-Platform/strategies/regime_strategy.py", line 776, in generate_signal
+    regime_result = self.regime_detector.detect(market_data)
+  File "/home/oladan/Trading-Platform/strategies/regime_detector.py", line 127, in detect
+    raise ValueError(
+ValueError: Insufficient data for regime detection. Need at least 20 candles, got 10
+2026-01-07 23:28:05,108 - __main__ - INFO - ================================================================================
+2026-01-07 23:28:05,108 - __main__ - INFO - INITIATING GRACEFUL SHUTDOWN
+2026-01-07 23:28:05,109 - __main__ - INFO - ================================================================================
+2026-01-07 23:28:05,110 INFO platform.shutdown_started {"timestamp":"2026-01-07T22:28:05.110049"}
+2026-01-07 23:28:05,110 - __main__ - INFO - [1/6] Shutting down Execution Module
+2026-01-07 23:28:05,111 - __main__ - INFO -    ✓ OrderManager stats: 0 completed, 0 pending
+2026-01-07 23:28:05,111 - __main__ - INFO -    ✓ Broker final equity: $1000.00
+2026-01-07 23:28:05,112 - __main__ - INFO - [2/6] Shutting down Risk Module
+2026-01-07 23:28:05,112 - __main__ - INFO -    ✓ Final drawdown metrics: DrawdownMetrics(equity=$1000.00, daily_dd=0.00%, total_dd=0.00%)
+2026-01-07 23:28:05,112 - __main__ - INFO - [3/6] Shutting down Strategy Module
+2026-01-07 23:28:05,112 - __main__ - INFO -    ✓ Strategy: RegimeBasedStrategy
+2026-01-07 23:28:05,112 - __main__ - INFO - [4/6] Shutting down Data Module
+2026-01-07 23:28:05,391 - __main__ - INFO -    ✓ Exchange disconnected
+2026-01-07 23:28:05,392 - __main__ - INFO - [5/6] Shutting down Monitoring Module
+2026-01-07 23:28:05,392 - __main__ - INFO -    ✓ Final metrics: 0 trades
+2026-01-07 23:28:05,392 - __main__ - INFO - [6/6] Shutting down Core Module
+2026-01-07 23:28:05,392 - __main__ - INFO -    ✓ Final state: paper
+2026-01-07 23:28:05,392 - __main__ - INFO - ================================================================================
+2026-01-07 23:28:05,392 - __main__ - INFO - SHUTDOWN COMPLETE
+2026-01-07 23:28:05,392 - __main__ - INFO - ================================================================================

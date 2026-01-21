@@ -1,0 +1,65 @@
+{
+  "strategy_id": "test_strategy_skip",
+  "state": "micro_live",
+  "alpha_lab_report_path": {},
+  "approved_by": "human",
+  "approval_date": "2026-01-05T15:36:21.291084+00:00",
+  "approval_notes": "",
+  "state_history": [
+    {
+      "from_state": null,
+      "to_state": "research",
+      "timestamp": "2026-01-05T15:31:25.594306+00:00",
+      "action": "submitted",
+      "by": "system",
+      "reason": null,
+      "validation_results": null,
+      "notes": ""
+    },
+    {
+      "from_state": "research",
+      "to_state": "approved",
+      "timestamp": "2026-01-05T15:31:25.594918+00:00",
+      "action": "approved",
+      "by": "human",
+      "reason": null,
+      "validation_results": null,
+      "notes": ""
+    },
+    {
+      "from_state": "approved",
+      "to_state": "shadow",
+      "timestamp": "2026-01-05T15:31:25.596118+00:00",
+      "action": "promoted",
+      "by": null,
+      "reason": null,
+      "validation_results": null,
+      "notes": ""
+    },
+    {
+      "from_state": "shadow",
+      "to_state": "paper",
+      "timestamp": "2026-01-05T15:31:25.597153+00:00",
+      "action": "promoted",
+      "by": null,
+      "reason": null,
+      "validation_results": null,
+      "notes": ""
+    },
+    {
+      "from_state": "paper",
+      "to_state": "micro_live",
+      "timestamp": "2026-01-05T15:36:21.291094+00:00",
+      "action": "approved",
+      "by": "human",
+      "reason": null,
+      "validation_results": null,
+      "notes": ""
+    }
+  ],
+  "shadow_metrics": {},
+  "paper_metrics": {},
+  "live_metrics": {},
+  "created_at": "2026-01-05T15:31:25.594297+00:00",
+  "last_updated": "2026-01-05T15:36:21.291092+00:00"
+}

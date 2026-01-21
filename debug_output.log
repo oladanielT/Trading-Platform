@@ -1,0 +1,465 @@
+2026-01-08 07:30:11,449 - __main__ - INFO - ================================================================================
+2026-01-08 07:30:11,450 - __main__ - INFO - TRADING PLATFORM INITIALIZATION
+2026-01-08 07:30:11,450 - __main__ - INFO - ================================================================================
+2026-01-08 07:30:11,450 - __main__ - INFO - Loading configuration from FIXED_CONFIG_FOR_VOLATILE_MARKETS.yaml
+2026-01-08 07:30:11,486 - __main__ - INFO - Configuration loaded successfully
+2026-01-08 07:30:11,486 - __main__ - INFO - [1/6] Initializing Core Module (Environment & State)
+2026-01-08 07:30:11,487 - __main__ - INFO -    ✓ TradingState initialized: paper
+2026-01-08 07:30:11,492 - core.environment - WARNING - Environment file not found: .env
+2026-01-08 07:30:11,495 - __main__ - INFO -    ✓ EnvironmentManager initialized
+2026-01-08 07:30:11,495 - __main__ - INFO - [2/6] Initializing Monitoring Module (Logger & Metrics)
+2026-01-08 07:30:11,498 - __main__ - INFO -    ✓ LoggerManager configured
+2026-01-08 07:30:11,498 - __main__ - INFO -    ✓ MetricsCollector initialized
+2026-01-08 07:30:11,498 - __main__ - INFO - [3/6] Initializing Data Module (Exchange & Market Feed)
+2026-01-08 07:30:11,554 - __main__ - INFO -    ✓ ExchangeConnector connected: binance (paper)
+2026-01-08 07:30:11,554 - data.market_feed - INFO - MarketFeed initialized with exchange: binance
+2026-01-08 07:30:11,554 - __main__ - INFO -    ✓ MarketFeed initialized
+2026-01-08 07:30:11,554 - __main__ - INFO - [4/6] Initializing Strategy Module (Signal Generation)
+2026-01-08 07:30:11,555 - strategies.base - INFO - Strategy 'ema_trend' initialized with parameters: {'fast_period': 9, 'slow_period': 21, 'signal_confidence': 0.6, 'hold_confidence': 0.0, 'require_trend_confirmation': False}
+2026-01-08 07:30:11,555 - strategies.ema_trend - INFO - EMATrendStrategy initialized: EMA9/21 crossover
+2026-01-08 07:30:11,555 - strategies.base - INFO - Strategy 'ContinuationStrategy' initialized with parameters: {'lookback': 50, 'min_impulse_pct': 1.2, 'min_retracement': 0.15, 'max_retracement': 0.75, 'min_consolidation_candles': 3, 'max_consolidation_candles': 35, 'volume_surge_threshold': 1.1}
+2026-01-08 07:30:11,555 - strategies.base - INFO - Strategy 'FVGStrategy' initialized with parameters: {'lookback': 100, 'min_gap_size_pct': 0.2, 'max_gap_age': 100, 'require_volume_spike': True, 'volume_spike_multiplier': 1.2, 'require_momentum': False, 'min_fill_pct': 0.3, 'max_fill_pct': 0.98}
+2026-01-08 07:30:11,555 - strategies.base - INFO - Strategy 'MultiStrategyAggregator' initialized with parameters: {}
+2026-01-08 07:30:11,555 - strategies.base - INFO - Strategy 'RegimeBasedStrategy' initialized with parameters: {'regime_confidence_threshold': 0.5, 'reduce_confidence_in_marginal_regimes': True}
+2026-01-08 07:30:11,555 - strategies.regime_detector - INFO - RegimeDetector initialized with lookback=100, vol_thresholds=(0.010, 0.030)
+2026-01-08 07:30:11,556 - strategies.regime_strategy - INFO - RegimeBasedStrategy initialized: underlying=MultiStrategyAggregator, allowed_regimes=['trending', 'quiet', 'volatile'], confidence_threshold=0.5, volatile_override=False, readiness_gate=False, readiness_scaling=False [0.50-1.00], mode=live
+2026-01-08 07:30:11,556 - __main__ - INFO -    ✓ Strategy initialized: RegimeBasedStrategy
+2026-01-08 07:30:11,556 - __main__ - INFO - [5/10] Initializing Risk Module (Position Sizing & Drawdown Guard)
+2026-01-08 07:30:11,566 - risk.position_sizing - INFO - PositionSizer initialized: equity=$100000.00, risk=2.00%, method=fixed_risk
+2026-01-08 07:30:11,567 - __main__ - INFO -    ✓ PositionSizer initialized: fixed_risk
+2026-01-08 07:30:11,567 - risk.drawdown_guard - INFO - DrawdownGuard initialized: equity=$100000.00, max_daily_dd=5.0%, max_total_dd=20.0%
+2026-01-08 07:30:11,567 - __main__ - INFO -    ✓ DrawdownGuard initialized
+2026-01-08 07:30:11,567 - __main__ - INFO - [6/10] Initializing Portfolio Risk Module (Correlation & Exposure Control)
+2026-01-08 07:30:11,567 - __main__ - INFO -    ✓ PortfolioRiskManager disabled (set portfolio_risk.enabled=True to enable)
+2026-01-08 07:30:11,567 - __main__ - INFO - [7/10] Initializing Regime Capital Module (Capital Allocation)
+2026-01-08 07:30:11,567 - __main__ - INFO -    ✓ RegimeCapitalAllocator disabled (set regime_capital.enabled=True to enable)
+2026-01-08 07:30:11,568 - __main__ - INFO - [8/10] Initializing Execution Module (Broker & Order Manager)
+2026-01-08 07:30:11,568 - execution.broker - INFO - PaperBroker initialized: mode=paper, slippage=5.0bps, fees=10.0bps
+2026-01-08 07:30:11,568 - execution.broker - INFO - Broker initialized: mode=paper, initial_cash=$100,000.00
+2026-01-08 07:30:11,568 - __main__ - INFO -    ✓ Broker initialized: paper
+2026-01-08 07:30:11,568 - execution.order_manager - INFO - OrderManager initialized: max_concurrent=5, max_attempts=3
+2026-01-08 07:30:11,568 - __main__ - INFO -    ✓ OrderManager initialized
+2026-01-08 07:30:11,568 - __main__ - INFO - [9/10] Initializing Execution Reality Module (Market Impact)
+2026-01-08 07:30:11,568 - execution.execution_reality_engine - INFO - [EXECUTION_REALITY] Engine initialized: enabled=False, model=conservative, min_fill_prob=60.0%
+2026-01-08 07:30:11,569 - __main__ - INFO -    ✓ Execution Reality disabled (set execution_reality.enabled=True to enable)
+2026-01-08 07:30:11,569 - __main__ - INFO - [10/10] Initializing Optimization Module (Performance Enhancement)
+2026-01-08 07:30:11,569 - __main__ - INFO -    ✓ Optimization disabled (set optimization.enabled=True to enable)
+2026-01-08 07:30:11,569 - __main__ - INFO - ================================================================================
+2026-01-08 07:30:11,569 - __main__ - INFO - PLATFORM INITIALIZATION COMPLETE
+2026-01-08 07:30:11,569 - __main__ - INFO - ================================================================================
+2026-01-08 07:30:11,573 INFO platform.initialized {"environment":"paper","exchange":"binance","symbol":"BTC/USDT","strategy":"RegimeBasedStrategy"}
+2026-01-08 07:30:11,590 - __main__ - INFO - ================================================================================
+2026-01-08 07:30:11,590 - __main__ - INFO - STARTING TRADING LOOP
+2026-01-08 07:30:11,590 - __main__ - INFO - ================================================================================
+2026-01-08 07:30:11,591 INFO trading.loop_started {"environment":"paper","symbol":"BTC/USDT"}
+2026-01-08 07:30:11,591 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:30:11,591 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:30:11.591488
+2026-01-08 07:30:11,591 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:30:21,492 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:30:21,492 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:30:21,493 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:30:21,496 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.45
+2026-01-08 07:30:21,496 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.45 < 0.5), treating as uncertain
+2026-01-08 07:30:21,497 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.45)
+2026-01-08 07:30:21,497 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.45064560848719687,"regime_metrics":{"volatility":0.05765550323495966,"trend_strength":0.04289583545280483,"price_efficiency":0.04006432072963397,"price_slope_pct":-0.0024731814086738405,"atr_pct":0.5659756342300144,"vol_ratio":0.04549636699241142,"mean_return":-0.00010447601721753281,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.058 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.45) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:30:21,501 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:31:23,108 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:31:23,779 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:31:23.707855
+2026-01-08 07:31:23,782 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:31:29,194 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:31:29,202 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:31:29,203 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:31:29,238 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.45
+2026-01-08 07:31:29,241 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.45 < 0.5), treating as uncertain
+2026-01-08 07:31:29,243 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.45)
+2026-01-08 07:31:29,255 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.4485934449253115,"regime_metrics":{"volatility":0.057445313282175295,"trend_strength":0.04214992272152033,"price_efficiency":0.03674942499397834,"price_slope_pct":-0.0024213159370564414,"atr_pct":0.5659706949298176,"vol_ratio":0.04430205725992525,"mean_return":-9.545940301515781e-05,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.057 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.45) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:31:29,267 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:32:29,407 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:32:29,712 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:32:29.693107
+2026-01-08 07:32:29,717 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:32:41,056 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:32:41,115 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:32:41,136 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:32:41,445 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.45
+2026-01-08 07:32:41,448 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.45 < 0.5), treating as uncertain
+2026-01-08 07:32:41,463 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.45)
+2026-01-08 07:32:41,496 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.4505904218150784,"regime_metrics":{"volatility":0.05764979159407131,"trend_strength":0.04287743735457711,"price_efficiency":0.03998115280311939,"price_slope_pct":-0.0024718757563535923,"atr_pct":0.5659755098889343,"vol_ratio":0.04546414717649223,"mean_return":-0.00010424893769381576,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.058 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.45) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:32:41,565 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:33:41,576 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:33:41,636 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:33:41.635484
+2026-01-08 07:33:41,636 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:33:43,956 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:33:43,960 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:33:43,960 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:33:43,982 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.45
+2026-01-08 07:33:43,985 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.45 < 0.5), treating as uncertain
+2026-01-08 07:33:43,986 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.45)
+2026-01-08 07:33:43,988 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.45059069322888495,"regime_metrics":{"volatility":0.057649819677166675,"trend_strength":0.042877528033982176,"price_efficiency":0.03998156253265911,"price_slope_pct":-0.002471882188137012,"atr_pct":0.5659755105014518,"vol_ratio":0.04546430563360377,"mean_return":-0.00010425005629964745,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.058 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.45) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:33:44,013 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:34:44,014 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:34:44,022 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:34:44.022385
+2026-01-08 07:34:44,022 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:34:45,871 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:34:45,871 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:34:45,872 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:34:45,879 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.45
+2026-01-08 07:34:45,880 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.45 < 0.5), treating as uncertain
+2026-01-08 07:34:45,882 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.45)
+2026-01-08 07:34:45,883 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.44977428007378617,"regime_metrics":{"volatility":0.05756568577240847,"trend_strength":0.042595510565823,"price_efficiency":0.03871588097281661,"price_slope_pct":-0.0024520402025025776,"atr_pct":0.5659736208912641,"vol_ratio":0.04498799638968666,"mean_return":-0.00010079974646443267,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.058 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.45) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:34:45,883 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:35:45,885 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:35:45,887 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:35:45.887337
+2026-01-08 07:35:45,887 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:35:47,109 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:35:47,110 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:35:47,110 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:35:47,111 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.45
+2026-01-08 07:35:47,112 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.45 < 0.5), treating as uncertain
+2026-01-08 07:35:47,112 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.45)
+2026-01-08 07:35:47,112 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.45090681553777606,"regime_metrics":{"volatility":0.0576825775968725,"trend_strength":0.04298185256202005,"price_efficiency":0.04045415745778636,"price_slope_pct":-0.0024793044754845804,"atr_pct":0.5659762173475329,"vol_ratio":0.04564887927748805,"mean_return":-0.00010554100999219187,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.058 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.45) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:35:47,118 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:36:47,120 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:36:47,121 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:36:47.121532
+2026-01-08 07:36:47,121 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:36:48,680 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:36:48,680 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:36:48,680 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:36:48,681 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.45
+2026-01-08 07:36:48,682 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.45 < 0.5), treating as uncertain
+2026-01-08 07:36:48,682 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.45)
+2026-01-08 07:36:48,682 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.4521060808722935,"regime_metrics":{"volatility":0.057807693582109305,"trend_strength":0.04335612731253527,"price_efficiency":0.042170252285678604,"price_slope_pct":-0.002506318156151232,"atr_pct":0.5659787899391643,"vol_ratio":0.04634867110501899,"mean_return":-0.00011024084843778937,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.058 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.45) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:36:48,682 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:37:49,047 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:37:49,744 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:37:49.731115
+2026-01-08 07:37:49,746 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:37:55,739 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:37:55,748 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:37:55,752 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:37:55,781 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.45
+2026-01-08 07:37:55,784 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.45 < 0.5), treating as uncertain
+2026-01-08 07:37:55,785 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.45)
+2026-01-08 07:37:55,799 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.44894375359065797,"regime_metrics":{"volatility":0.057480847544141934,"trend_strength":0.04228734106365325,"price_efficiency":0.03735170033730399,"price_slope_pct":-0.002430712627600396,"atr_pct":0.565971589804076,"vol_ratio":0.0445049651597985,"mean_return":-9.709239656213815e-05,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.057 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.45) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:37:55,807 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:38:55,819 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:38:55,849 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:38:55.849401
+2026-01-08 07:38:55,849 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:38:57,938 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:38:57,940 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:38:57,940 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:38:57,943 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.45
+2026-01-08 07:38:57,943 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.45 < 0.5), treating as uncertain
+2026-01-08 07:38:57,944 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.45)
+2026-01-08 07:38:57,945 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.44779434802483425,"regime_metrics":{"volatility":0.05736487625795905,"trend_strength":0.04181705998861658,"price_efficiency":0.03530518759511381,"price_slope_pct":-0.0023988308898892407,"atr_pct":0.565968553613168,"vol_ratio":0.043842142515161164,"mean_return":-9.155291416665918e-05,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.057 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.45) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:38:57,947 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:39:57,951 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:39:57,956 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:39:57.956091
+2026-01-08 07:39:57,957 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:40:02,189 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:40:02,190 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:40:02,191 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:40:02,214 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.45
+2026-01-08 07:40:02,215 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.45 < 0.5), treating as uncertain
+2026-01-08 07:40:02,242 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.45)
+2026-01-08 07:40:02,255 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.44829744091989965,"regime_metrics":{"volatility":0.05741541277694041,"trend_strength":0.04202994423068225,"price_efficiency":0.036226512751459966,"price_slope_pct":-0.0024131670172958487,"atr_pct":0.5659699188844115,"vol_ratio":0.044131148969946396,"mean_return":-9.404346147545412e-05,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.057 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.45) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:40:02,269 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:41:02,272 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:41:02,276 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:41:02.275927
+2026-01-08 07:41:02,276 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:41:04,217 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:41:04,218 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:41:04,218 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:41:04,220 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.45
+2026-01-08 07:41:04,221 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.45 < 0.5), treating as uncertain
+2026-01-08 07:41:04,223 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.45)
+2026-01-08 07:41:04,225 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.44896735101554774,"regime_metrics":{"volatility":0.057483246752350836,"trend_strength":0.04229642924529472,"price_efficiency":0.037391660472152484,"price_slope_pct":-0.002431336502014917,"atr_pct":0.5659716492174568,"vol_ratio":0.04451865488050278,"mean_return":-9.72008250556302e-05,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.057 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.45) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:41:04,228 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:42:04,250 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:42:04,277 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:42:04.266836
+2026-01-08 07:42:04,277 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:42:10,289 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:42:10,290 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:42:10,290 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:42:10,326 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.45
+2026-01-08 07:42:10,327 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.45 < 0.5), treating as uncertain
+2026-01-08 07:42:10,339 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.45)
+2026-01-08 07:42:10,386 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.4482057275063997,"regime_metrics":{"volatility":0.05740617279530962,"trend_strength":0.04199200626382586,"price_efficiency":0.036061721162842175,"price_slope_pct":-0.002410600787522974,"atr_pct":0.5659696744948625,"vol_ratio":0.044078313965416005,"mean_return":-9.359759832568292e-05,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.057 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.45) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:42:10,394 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:43:10,614 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:43:10,825 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:43:10.799785
+2026-01-08 07:43:10,826 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:43:14,498 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:43:14,500 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:43:14,500 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:43:14,516 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.45
+2026-01-08 07:43:14,517 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.45 < 0.5), treating as uncertain
+2026-01-08 07:43:14,518 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.45)
+2026-01-08 07:43:14,520 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.4482057275063997,"regime_metrics":{"volatility":0.05740617279530962,"trend_strength":0.04199200626382586,"price_efficiency":0.036061721162842175,"price_slope_pct":-0.002410600787522974,"atr_pct":0.5659696744948625,"vol_ratio":0.044078313965416005,"mean_return":-9.359759832568292e-05,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.057 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.45) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:43:14,527 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:44:14,529 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:44:14,835 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:44:14.835116
+2026-01-08 07:44:14,835 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:44:15,805 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:44:15,806 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:44:15,806 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:44:15,809 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.45
+2026-01-08 07:44:15,810 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.45 < 0.5), treating as uncertain
+2026-01-08 07:44:15,810 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.45)
+2026-01-08 07:44:15,810 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.4484411492673315,"regime_metrics":{"volatility":0.05742991454768137,"trend_strength":0.04208865385557855,"price_efficiency":0.036482055389792836,"price_slope_pct":-0.0024171482152393546,"atr_pct":0.5659702980255081,"vol_ratio":0.04421405447552459,"mean_return":-9.47352029076968e-05,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.057 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.45) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:44:15,811 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:45:15,814 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:45:15,816 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:45:15.816733
+2026-01-08 07:45:15,817 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:45:16,687 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:45:16,687 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:45:16,687 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:45:16,689 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.45
+2026-01-08 07:45:16,689 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.45 < 0.5), treating as uncertain
+2026-01-08 07:45:16,689 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.45)
+2026-01-08 07:45:16,689 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.44896735101554774,"regime_metrics":{"volatility":0.057483246752350836,"trend_strength":0.04229642924529472,"price_efficiency":0.037391660472152484,"price_slope_pct":-0.002431336502014917,"atr_pct":0.5659716492174568,"vol_ratio":0.04451865488050278,"mean_return":-9.72008250556302e-05,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.057 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.45) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:45:16,689 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:46:16,690 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:46:16,691 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:46:16.691430
+2026-01-08 07:46:16,691 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:46:18,118 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:46:18,119 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:46:18,120 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:46:18,121 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.45
+2026-01-08 07:46:18,121 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.45 < 0.5), treating as uncertain
+2026-01-08 07:46:18,121 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.45)
+2026-01-08 07:46:18,121 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.4494524249858712,"regime_metrics":{"volatility":0.05753271376514269,"trend_strength":0.04247883981776928,"price_efficiency":0.03819715843104879,"price_slope_pct":-0.0024439233570994643,"atr_pct":0.5659728479003928,"vol_ratio":0.04480054873996956,"mean_return":-9.938864651627018e-05,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.058 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.45) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:46:18,122 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:47:18,156 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:47:18,218 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:47:18.215572
+2026-01-08 07:47:18,218 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:47:21,917 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:47:21,919 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:47:21,923 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:47:21,952 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.45
+2026-01-08 07:47:21,953 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.45 < 0.5), treating as uncertain
+2026-01-08 07:47:21,960 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.45)
+2026-01-08 07:47:21,962 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.4492148155687507,"regime_metrics":{"volatility":0.057508447907716656,"trend_strength":0.04239051637456741,"price_efficiency":0.037806308437383876,"price_slope_pct":-0.0024378132266131836,"atr_pct":0.5659722660148383,"vol_ratio":0.044662357992920024,"mean_return":-9.832653807994381e-05,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.058 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.45) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:47:21,967 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:48:22,014 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:48:22,070 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:48:22.069959
+2026-01-08 07:48:22,070 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:48:33,225 - data.exchange - WARNING - Request timeout (attempt 1/5), retrying in 1.10s...
+2026-01-08 07:48:45,375 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:48:45,379 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:48:45,380 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:48:45,491 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.45
+2026-01-08 07:48:45,492 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.45 < 0.5), treating as uncertain
+2026-01-08 07:48:45,506 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.45)
+2026-01-08 07:48:45,531 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.4505904218150784,"regime_metrics":{"volatility":0.05764979159407131,"trend_strength":0.04287743735457711,"price_efficiency":0.03998115280311939,"price_slope_pct":-0.0024718757563535923,"atr_pct":0.5659755098889343,"vol_ratio":0.04546414717649223,"mean_return":-0.00010424893769381576,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.058 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.45) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:48:45,692 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:49:45,701 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:49:45,732 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:49:45.731105
+2026-01-08 07:49:45,732 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:49:47,754 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:49:47,756 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:49:47,756 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:49:47,779 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.45
+2026-01-08 07:49:47,779 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.45 < 0.5), treating as uncertain
+2026-01-08 07:49:47,781 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.45)
+2026-01-08 07:49:47,784 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.4524887249059836,"regime_metrics":{"volatility":0.05784787841478884,"trend_strength":0.043469105576541045,"price_efficiency":0.0426948847850774,"price_slope_pct":-0.002514595968882422,"atr_pct":0.565979578259424,"vol_ratio":0.04657156541575766,"mean_return":-0.00011168145103764781,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.058 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.45) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:49:47,800 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:50:49,041 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:50:49,277 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:50:49.258838
+2026-01-08 07:50:49,279 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:50:58,138 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:50:58,164 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:50:58,169 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:50:58,232 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.45
+2026-01-08 07:50:58,233 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.45 < 0.5), treating as uncertain
+2026-01-08 07:50:58,238 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.45)
+2026-01-08 07:50:58,263 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.4534135385030028,"regime_metrics":{"volatility":0.05794549499701807,"trend_strength":0.0437308715115742,"price_efficiency":0.043922890755084015,"price_slope_pct":-0.002534007433697878,"atr_pct":0.5659814268698578,"vol_ratio":0.04710899801215299,"mean_return":-0.00011506045336512489,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.058 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.45) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:50:58,300 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:51:58,311 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:51:58,346 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:51:58.343239
+2026-01-08 07:51:58,346 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:52:07,288 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:52:07,294 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:52:07,294 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:52:07,310 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.45
+2026-01-08 07:52:07,310 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.45 < 0.5), treating as uncertain
+2026-01-08 07:52:07,312 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.45)
+2026-01-08 07:52:07,318 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.45099133587242346,"regime_metrics":{"volatility":0.057691352248908145,"trend_strength":0.043009318522809585,"price_efficiency":0.040578985666095434,"price_slope_pct":-0.002481266174978083,"atr_pct":0.569006661985018,"vol_ratio":0.045698229253531994,"mean_return":-0.00010588223415960078,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.058 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.45) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:52:07,346 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:53:07,443 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:53:07,484 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:53:07.482498
+2026-01-08 07:53:07,485 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:53:11,971 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:53:11,975 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:53:11,975 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:53:12,069 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.45
+2026-01-08 07:53:12,069 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.45 < 0.5), treating as uncertain
+2026-01-08 07:53:12,076 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.45)
+2026-01-08 07:53:12,109 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.4547523217222801,"regime_metrics":{"volatility":0.05808797270161676,"trend_strength":0.04408478954505905,"price_efficiency":0.045612439162109934,"price_slope_pct":-0.0025607964924978057,"atr_pct":0.5709522759334734,"vol_ratio":0.04788278897859458,"mean_return":-0.00011972551286453373,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.058 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.45) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:53:14,060 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:54:14,602 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:54:14,861 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:54:14.814725
+2026-01-08 07:54:14,861 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:54:22,840 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:54:22,842 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:54:22,842 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:54:22,854 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.46
+2026-01-08 07:54:22,854 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.46 < 0.5), treating as uncertain
+2026-01-08 07:54:22,855 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.46)
+2026-01-08 07:54:22,860 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.45602476235063394,"regime_metrics":{"volatility":0.05822458435579738,"trend_strength":0.04439760044802664,"price_efficiency":0.047135806412374366,"price_slope_pct":-0.002585032276457119,"atr_pct":0.5718559670719964,"vol_ratio":0.04861253303792837,"mean_return":-0.00012394776468830883,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.058 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.46) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:54:22,867 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:55:25,334 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:55:29,753 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:55:29.349299
+2026-01-08 07:55:30,075 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:55:44,258 - data.exchange - WARNING - Request timeout (attempt 1/5), retrying in 1.10s...
+2026-01-08 07:55:56,899 - data.exchange - WARNING - Request timeout (attempt 2/5), retrying in 2.20s...
+2026-01-08 07:56:10,958 - data.exchange - WARNING - Network error (attempt 3/5): binance GET https://api.binance.com/api/v3/klines?interval=1h&limit=500&symbol=BTCUSDT&startTime=1766055331395, retrying in 2.00s...
+2026-01-08 07:56:35,969 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:56:35,974 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:56:35,975 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:56:36,058 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.45
+2026-01-08 07:56:36,069 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.45 < 0.5), treating as uncertain
+2026-01-08 07:56:36,071 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.45)
+2026-01-08 07:56:36,086 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.4547397835142084,"regime_metrics":{"volatility":0.05808663223435484,"trend_strength":0.04408159912383224,"price_efficiency":0.04559705130721761,"price_slope_pct":-0.0025605520774242933,"atr_pct":0.573241982912743,"vol_ratio":0.047875569026322264,"mean_return":-0.00011968294075663122,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.058 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.45) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:56:36,119 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:57:36,145 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:57:36,207 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:57:36.196772
+2026-01-08 07:57:36,209 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:57:38,289 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:57:38,290 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:57:38,290 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:57:38,304 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.46
+2026-01-08 07:57:38,304 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.46 < 0.5), treating as uncertain
+2026-01-08 07:57:38,305 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.46)
+2026-01-08 07:57:38,308 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.4566513873507458,"regime_metrics":{"volatility":0.05829226614687159,"trend_strength":0.044544224268584426,"price_efficiency":0.04786020234136959,"price_slope_pct":-0.0025965842218125023,"atr_pct":0.5732454583629455,"vol_ratio":0.04896960188919887,"mean_return":-0.00012596090302079775,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.058 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.46) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:57:38,321 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:58:38,326 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:58:38,340 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:58:38.339765
+2026-01-08 07:58:38,340 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:58:39,524 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:58:39,525 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:58:39,525 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:58:39,538 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.46
+2026-01-08 07:58:39,539 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.46 < 0.5), treating as uncertain
+2026-01-08 07:58:39,539 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.46)
+2026-01-08 07:58:39,540 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.4583923129752118,"regime_metrics":{"volatility":0.05848164542975904,"trend_strength":0.04492900449126993,"price_efficiency":0.04979484660065943,"price_slope_pct":-0.0026275225594605445,"atr_pct":0.5769675570707734,"vol_ratio":0.049952981181869645,"mean_return":-0.00013135441419718773,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.058 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.46) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:58:39,544 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 07:59:39,546 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 07:59:39,547 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T06:59:39.547569
+2026-01-08 07:59:39,547 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 07:59:40,467 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 11:00:00+00:00 to 2026-01-08 06:00:00+00:00)
+2026-01-08 07:59:40,467 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 07:59:40,468 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 07:59:40,472 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.46
+2026-01-08 07:59:40,472 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.46 < 0.5), treating as uncertain
+2026-01-08 07:59:40,472 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.46)
+2026-01-08 07:59:40,473 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.4612411363423217,"regime_metrics":{"volatility":0.058795582356619254,"trend_strength":0.04549789360373911,"price_efficiency":0.05275312615014921,"price_slope_pct":-0.0026750756054102795,"atr_pct":0.5876402657659991,"vol_ratio":0.0515328738909902,"mean_return":-0.0001396498935347071,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.059 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.46) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 07:59:40,474 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 08:00:40,475 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 08:00:40,476 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T07:00:40.476939
+2026-01-08 08:00:40,477 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 08:00:42,384 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 12:00:00+00:00 to 2026-01-08 07:00:00+00:00)
+2026-01-08 08:00:42,384 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 08:00:42,385 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 08:00:42,386 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.47
+2026-01-08 08:00:42,386 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.47 < 0.5), treating as uncertain
+2026-01-08 08:00:42,386 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.47)
+2026-01-08 08:00:42,387 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.47317562276850406,"regime_metrics":{"volatility":0.0591314524919709,"trend_strength":0.08552060410035933,"price_efficiency":0.060492115393421204,"price_slope_pct":-0.005056958393651091,"atr_pct":0.5492153958282014,"vol_ratio":0.05324248181185971,"mean_return":-0.0001599371333082395,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.059 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.47) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 08:00:42,387 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 08:01:42,389 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 08:01:42,390 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T07:01:42.390249
+2026-01-08 08:01:42,390 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 08:01:43,415 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 12:00:00+00:00 to 2026-01-08 07:00:00+00:00)
+2026-01-08 08:01:43,416 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 08:01:43,416 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 08:01:43,417 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.47
+2026-01-08 08:01:43,417 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.47 < 0.5), treating as uncertain
+2026-01-08 08:01:43,418 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.47)
+2026-01-08 08:01:43,418 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.47479995493986943,"regime_metrics":{"volatility":0.059238177133413034,"trend_strength":0.08860622504416069,"price_efficiency":0.07254829440379353,"price_slope_pct":-0.005248872140351299,"atr_pct":0.5645561792023792,"vol_ratio":0.0528564042339543,"mean_return":-0.00019347295452779863,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.059 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.47) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 08:01:43,418 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 08:02:43,421 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 08:02:43,422 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T07:02:43.422347
+2026-01-08 08:02:43,422 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 08:02:44,983 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 12:00:00+00:00 to 2026-01-08 07:00:00+00:00)
+2026-01-08 08:02:44,983 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 08:02:44,983 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 08:02:44,992 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.47
+2026-01-08 08:02:44,993 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.47 < 0.5), treating as uncertain
+2026-01-08 08:02:44,993 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.47)
+2026-01-08 08:02:44,993 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.4731642287322006,"regime_metrics":{"volatility":0.059121405531083124,"trend_strength":0.08584407283462005,"price_efficiency":0.06176164028426018,"price_slope_pct":-0.005075223100936136,"atr_pct":0.5664076608773547,"vol_ratio":0.05310281225630242,"mean_return":-0.00016312408905081417,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.059 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.47) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 08:02:44,993 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 08:03:44,995 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 08:03:44,995 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T07:03:44.995707
+2026-01-08 08:03:44,995 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 08:03:46,604 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 12:00:00+00:00 to 2026-01-08 07:00:00+00:00)
+2026-01-08 08:03:46,604 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 08:03:46,604 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 08:03:46,605 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.47
+2026-01-08 08:03:46,606 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.47 < 0.5), treating as uncertain
+2026-01-08 08:03:46,606 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.47)
+2026-01-08 08:03:46,606 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.4733297904284545,"regime_metrics":{"volatility":0.05911631123844568,"trend_strength":0.08675060682377553,"price_efficiency":0.0652261734579575,"price_slope_pct":-0.005128376740624412,"atr_pct":0.5664127245005218,"vol_ratio":0.05281800741017141,"mean_return":-0.0001724043269265479,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.059 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.47) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 08:03:46,608 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 08:04:46,610 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 08:04:46,611 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T07:04:46.611274
+2026-01-08 08:04:46,611 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 08:04:47,645 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 12:00:00+00:00 to 2026-01-08 07:00:00+00:00)
+2026-01-08 08:04:47,646 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 08:04:47,646 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 08:04:47,647 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.47
+2026-01-08 08:04:47,647 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.47 < 0.5), treating as uncertain
+2026-01-08 08:04:47,647 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.47)
+2026-01-08 08:04:47,648 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.4732156013664551,"regime_metrics":{"volatility":0.059114213616535745,"trend_strength":0.0863336574862884,"price_efficiency":0.06370293028408092,"price_slope_pct":-0.005103547134277858,"atr_pct":0.5664103591353151,"vol_ratio":0.05292832017514263,"mean_return":-0.00016806821819117048,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.059 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.47) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 08:04:47,650 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 08:05:47,653 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 08:05:47,653 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T07:05:47.653653
+2026-01-08 08:05:47,653 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 08:05:48,534 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 12:00:00+00:00 to 2026-01-08 07:00:00+00:00)
+2026-01-08 08:05:48,534 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 08:05:48,537 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 08:05:48,538 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.47
+2026-01-08 08:05:48,538 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.47 < 0.5), treating as uncertain
+2026-01-08 08:05:48,539 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.47)
+2026-01-08 08:05:48,539 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.4731645970365715,"regime_metrics":{"volatility":0.05912099243952003,"trend_strength":0.08586100133078405,"price_efficiency":0.06182882448498,"price_slope_pct":-0.0050761884691369165,"atr_pct":0.5664077528420972,"vol_ratio":0.05309601904621845,"mean_return":-0.00016329256078088258,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.059 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.47) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 08:05:48,539 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 08:06:48,540 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 08:06:48,540 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T07:06:48.540740
+2026-01-08 08:06:48,540 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 08:06:50,850 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 12:00:00+00:00 to 2026-01-08 07:00:00+00:00)
+2026-01-08 08:06:50,853 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 08:06:50,853 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 08:06:50,855 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.47
+2026-01-08 08:06:50,856 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.47 < 0.5), treating as uncertain
+2026-01-08 08:06:50,856 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.47)
+2026-01-08 08:06:50,856 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.47317501625992164,"regime_metrics":{"volatility":0.05911724342003669,"trend_strength":0.08604531156427966,"price_efficiency":0.06256527241548132,"price_slope_pct":-0.005086762489351535,"atr_pct":0.5664087601645316,"vol_ratio":0.05302550646876604,"mean_return":-0.00016513807176877954,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.059 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.47) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 08:06:50,874 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 08:07:50,876 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 08:07:50,878 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T07:07:50.878627
+2026-01-08 08:07:50,878 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 08:07:52,966 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 12:00:00+00:00 to 2026-01-08 07:00:00+00:00)
+2026-01-08 08:07:52,967 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 08:07:52,967 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 08:07:52,970 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.47
+2026-01-08 08:07:52,970 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.47 < 0.5), treating as uncertain
+2026-01-08 08:07:52,971 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.47)
+2026-01-08 08:07:52,973 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.47334173961797615,"regime_metrics":{"volatility":0.05917219819583189,"trend_strength":0.08472963653459124,"price_efficiency":0.05749323608984772,"price_slope_pct":-0.005013639693381997,"atr_pct":0.5691325890301936,"vol_ratio":0.05365703894379852,"mean_return":-0.00015238251884395248,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.059 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.47) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 08:07:52,975 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 08:08:52,976 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 08:08:52,977 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T07:08:52.977302
+2026-01-08 08:08:52,978 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 08:08:54,020 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 12:00:00+00:00 to 2026-01-08 07:00:00+00:00)
+2026-01-08 08:08:54,021 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 08:08:54,022 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 08:08:54,023 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.47
+2026-01-08 08:08:54,023 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.47 < 0.5), treating as uncertain
+2026-01-08 08:08:54,024 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.47)
+2026-01-08 08:08:54,024 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.473284635108178,"regime_metrics":{"volatility":0.059160373912152855,"trend_strength":0.08492040709453887,"price_efficiency":0.058203660682656026,"price_slope_pct":-0.005023923885689228,"atr_pct":0.5691335734659806,"vol_ratio":0.05354816366888049,"mean_return":-0.00015417554093160368,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.059 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.47) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 08:08:54,024 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-08 08:09:54,138 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-08 08:09:54,227 - __main__ - INFO - Trading Loop Iteration - 2026-01-08T07:09:54.226931
+2026-01-08 08:09:54,227 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-08 08:09:55,971 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 12:00:00+00:00 to 2026-01-08 07:00:00+00:00)
+2026-01-08 08:09:55,972 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-08 08:09:55,973 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-08 08:09:55,983 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.47
+2026-01-08 08:09:55,984 - strategies.regime_strategy - WARNING - [RegimeDetector] Low regime confidence (0.47 < 0.5), treating as uncertain
+2026-01-08 08:09:55,984 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.47)
+2026-01-08 08:09:55,985 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.47319576962513116,"regime_metrics":{"volatility":0.059138488755778935,"trend_strength":0.08534686519283471,"price_efficiency":0.05982100602426401,"price_slope_pct":-0.005047285481016088,"atr_pct":0.5691358097126192,"vol_ratio":0.05332496485816585,"mean_return":-0.00015824973411789143,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.059 (threshold=0.030). Market showing unpredictable movements.","decision":"hold_due_to_uncertain_regime","decision_reason":"Regime classification confidence (0.47) below threshold (0.5)","underlying_strategy":"MultiStrategyAggregator","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-08 08:09:55,986 - __main__ - INFO - [STRATEGY] HOLD signal - no action required

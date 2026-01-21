@@ -1,0 +1,140 @@
+# Fixed Config for Volatile Markets (Relaxed Strategy Thresholds)
+
+# Trading environment
+environment: paper
+
+# Exchange configuration
+exchange:
+  id: binance
+  testnet: true
+  api_key: "YOUR_LIVE_API_KEY_HERE"
+  secret_key: "YOUR_LIVE_SECRET_KEY_HERE"
+
+# Trading parameters
+trading:
+  symbols:
+    - BTC/USDT
+  symbol: BTC/USDT
+  timeframe: 1h
+  initial_capital: 100000.0
+  fetch_limit: 500
+  allocation_per_symbol: 1.0
+
+# Strategy configuration
+strategy:
+  name: regime_based
+
+  # Allow all regimes (except mean_reversion for safety)
+  allowed_regimes:
+    - trending
+    - quiet
+    - volatile
+    - ranging
+
+  regime_confidence_threshold: 0.4 # Lowered from 0.5 to allow trading in uncertain markets
+  reduce_confidence_in_marginal_regimes: true
+  # Volatile policy: disable gating so signals flow in volatile regimes
+  volatile_policy:
+    enabled: false
+    # If you want to enable and relax instead, set:
+    # enabled: true
+    # min_trend_strength: 0.5
+    # confidence_scale: 0.6
+
+  # Multi-strategy aggregator with relaxed thresholds
+  multi_strategy:
+    enabled: true
+    strategies:
+      - name: ema_trend
+        enabled: true
+        params:
+          fast_period: 9
+          slow_period: 21
+          signal_confidence: 0.60
+        weight: 0.2
+
+      - name: continuation
+        enabled: true
+        params:
+          lookback: 50
+          min_impulse_pct: 1.2
+          min_retracement: 0.15
+          max_retracement: 0.75
+          min_consolidation_candles: 3
+          max_consolidation_candles: 35
+          volume_surge_threshold: 1.1
+        weight: 0.2
+
+      - name: fvg
+        enabled: true
+        params:
+          lookback: 100
+          min_gap_size_pct: 0.2
+          min_fill_pct: 0.3
+          max_fill_pct: 0.98
+          require_volume_spike: true
+          volume_spike_multiplier: 1.2
+          max_gap_age: 100
+          require_momentum: false
+        weight: 0.2
+
+      - name: range_trading
+        enabled: true
+        params:
+          rsi_period: 14
+          rsi_oversold: 45.0        # Relaxed from 35 - easier to trigger buys
+          rsi_overbought: 55.0      # Relaxed from 65 - easier to trigger sells
+          rsi_strong_oversold: 35.0 # Strong buy threshold
+          rsi_strong_overbought: 65.0 # Strong sell threshold
+          lookback: 100
+          support_resistance_pct: 0.5  # Very tight - price must be near S/R
+          require_volume_confirmation: false
+          min_volatility: 0.001
+          max_volatility: 0.15
+          signal_confidence: 0.70
+        weight: 0.4
+
+    adaptive_weighting:
+      enabled: true
+      learning_rate: 0.1
+      min_samples: 20
+
+# Risk management (unchanged but present)
+risk:
+  max_position_size: 0.1
+  risk_per_trade: 0.02
+  sizing_method: fixed_risk
+  use_confidence_scaling: true
+  max_daily_drawdown: 0.05
+  max_total_drawdown: 0.20
+  max_consecutive_losses: 5
+
+# Execution settings
+execution:
+  order_timeout: 30
+  max_retries: 3
+  retry_delay: 5
+  check_balance: true
+  post_only: false
+  reduce_only: false
+
+# Monitoring
+monitoring:
+  log_level: INFO
+  log_file: logs/live_trading.log
+  metrics_enabled: true
+  runtime_alerts:
+    enabled: true
+    readiness_threshold: not_ready
+    confidence_threshold: 0.85
+    deviation_threshold: 0.3
+  performance:
+    enabled: true
+    equity_check_interval: 1h
+    drawdown_warning_pct: 0.03
+    success_rate_target: 0.55
+    readiness_correlation: true
+  log_trades: true
+  log_signals: true
+  log_positions: true
+  log_alerts: true

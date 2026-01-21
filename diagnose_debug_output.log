@@ -1,0 +1,33 @@
+2026-01-07 22:21:31,570 - strategies.base - INFO - Strategy 'ContinuationStrategy' initialized with parameters: {'lookback': 50, 'min_impulse_pct': 1.2, 'min_retracement': 0.15, 'max_retracement': 0.75, 'min_consolidation_candles': 3, 'max_consolidation_candles': 35, 'volume_surge_threshold': 1.1}
+2026-01-07 22:21:31,747 - strategies.base - INFO - Strategy 'FVGStrategy' initialized with parameters: {'lookback': 100, 'min_gap_size_pct': 0.2, 'max_gap_age': 100, 'require_volume_spike': True, 'volume_spike_multiplier': 1.2, 'require_momentum': False, 'min_fill_pct': 0.3, 'max_fill_pct': 0.98}
+2026-01-07 22:21:31,787 - strategies.pattern_strategies - INFO - [FVG] bullish_fvg: gap_size=2.04% filled=97.4% conf=0.900
+
+=== ContinuationStrategy (relaxed) ===
+
+============================================================
+[CONTINUATION DEBUG] Starting analysis
+[CONTINUATION DEBUG] Data shape: (500, 6)
+[CONTINUATION DEBUG] Columns: ['timestamp', 'open', 'high', 'low', 'close', 'volume']
+[CONTINUATION DEBUG] Price range: $41795.44 → $80940.75
+[CONTINUATION DEBUG] Last 5 closes: [80940.75478237249, 79638.19261747389, 79537.7139137151, 78133.58356561142, 77135.94335871864]
+[CONTINUATION DEBUG] Trend detection: bull
+[CONTINUATION DEBUG] Impulse found: {'start': 486, 'end': 490, 'size_pct': np.float64(2.179582784796634)}
+[CONTINUATION DEBUG] Consolidation found: None
+Continuation signal: HOLD 0.0 {'reason': 'No consolidation'}
+
+=== FVGStrategy (relaxed) ===
+
+============================================================
+[FVG DEBUG] Starting analysis
+[FVG DEBUG] Data shape: (500, 6)
+[FVG DEBUG] Columns: ['timestamp', 'open', 'high', 'low', 'close', 'volume']
+[FVG DEBUG] Price range: $41795.44 → $80940.75
+[FVG DEBUG] FVGs found: 50
+  FVG 1: bullish_fvg, size=0.73%, age=98, filled=100.0%
+  FVG 2: bullish_fvg, size=0.63%, age=97, filled=100.0%
+  FVG 3: bearish_fvg, size=0.73%, age=92, filled=0.0%
+[FVG DEBUG] Active retest FVG: FairValueGap(gap_type='bullish_fvg', candle1_index=480, candle2_index=481, candle3_index=482, gap_top=np.float64(77176.30854312515), gap_bottom=np.float64(75632.78237226265), gap_size_pct=np.float64(2.0408163265306136), filled_pct=np.float64(0.9738487204373337), is_active=np.True_, formation_time=18)
+[FVG DEBUG] ✅ FVG PATTERN COMPLETE - Generating signal (conf=0.900)
+============================================================
+
+FVG signal: BUY 0.9 {'fvg_type': 'bullish_fvg', 'gap_size_pct': np.float64(2.04), 'gap_filled_pct': np.float64(97.4), 'gap_age_candles': 18}

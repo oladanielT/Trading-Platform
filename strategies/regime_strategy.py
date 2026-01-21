@@ -1,0 +1,1038 @@
+"""
+regime_strategy.py - Regime-Based Meta-Strategy
+
+A meta-strategy that sits above existing trading strategies and controls
+when they are allowed to generate actionable signals based on market regime.
+
+Design:
+- Uses RegimeDetector to classify market conditions
+- Delegates signal generation to underlying strategy only in favorable regimes
+- Returns HOLD signal in unfavorable regimes
+- Fully explainable with detailed metadata about regime and decision logic
+
+No machine learning, no order placement, production-safe and auditable.
+"""
+
+from __future__ import annotations
+
+import logging
+from typing import Optional, Dict, Any
+
+try:
+    import pandas as pd
+except ImportError:
+    pd = None
+
+from strategies.base import BaseStrategy, Signal, SignalOutput, PositionState
+from strategies.regime_detector import RegimeDetector, MarketRegime
+from strategies.ema_trend import EMATrendStrategy
+from strategies.multi_strategy_aggregator import MultiStrategyAggregator
+from strategies.pattern_strategies import (
+    FVGStrategy,
+    ABCStrategy,
+    ContinuationStrategy,
+    ReclamationBlockStrategy,
+)
+from enum import Enum
+from monitoring.runtime_summary import RuntimeSummaryAggregator
+
+
+class ReadinessState(Enum):
+    """Regime readiness state for trend formation detection (observation only)."""
+    NOT_READY = "not_ready"  # Score 0.0 - 0.33
+    FORMING = "forming"      # Score 0.34 - 0.66
+    READY = "ready"          # Score 0.67 - 1.0
+    
+    def __str__(self):
+        return self.value
+
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+
+class RegimeBasedStrategy(BaseStrategy):
+    """
+    Meta-strategy that adapts to market regimes.
+    
+    This strategy acts as a filter/wrapper around an underlying trading strategy.
+    It detects the current market regime and only allows the underlying strategy
+    to generate signals when market conditions are favorable.
+    
+    Regime Logic:
+    - TRENDING: Allow underlying strategy signals (favorable for trend-following)
+    - RANGING: Return HOLD (trend strategies perform poorly in ranges)
+    - VOLATILE: Return HOLD (high risk, unpredictable movements)
+    - QUIET: Return HOLD (low opportunity, potential false signals)
+    
+    This reduces overtrading and improves risk-adjusted returns by avoiding
+    unfavorable market conditions.
+    """
+    
+    def __init__(
+        self,
+        underlying_strategy: Optional[BaseStrategy] = None,
+        regime_detector: Optional[RegimeDetector] = None,
+        allowed_regimes: Optional[list] = None,
+        regime_confidence_threshold: float = 0.5,
+        reduce_confidence_in_marginal_regimes: bool = True,
+        allow_volatile_trend_override: bool = False,
+        volatile_trend_strength_min: float = 3.0,
+        volatile_confidence_scale: float = 0.5,
+        enable_readiness_gate: bool = False,
+        enable_readiness_scaling: bool = False,
+        scaling_factor_max: float = 1.0,
+        scaling_factor_min: float = 0.5,
+        runtime_summary_aggregator: Optional[RuntimeSummaryAggregator] = None,
+        enable_pattern_strategies: bool = False,
+        pattern_strategy_weights: Optional[dict] = None,
+        trading_mode: str = 'live',
+        name: Optional[str] = None,
+        **kwargs
+    ):
+        """
+        Initialize regime-based meta-strategy.
+        
+        Args:
+            underlying_strategy: Strategy to delegate to (default: EMATrendStrategy)
+            regime_detector: RegimeDetector instance (default: new instance)
+            allowed_regimes: List of MarketRegime values where underlying strategy
+                           can generate signals (default: [MarketRegime.TRENDING])
+            regime_confidence_threshold: Minimum regime classification confidence
+                                       to trust regime (default: 0.5)
+            reduce_confidence_in_marginal_regimes: Scale down signal confidence
+                                                  if regime confidence is low
+            allow_volatile_trend_override: If True, allow trading in VOLATILE when
+                                           trend strength is strong and aligned
+                                           with signal direction (default: False)
+            volatile_trend_strength_min: Minimum trend_strength metric to permit
+                                          volatile override (config-driven)
+            volatile_confidence_scale: Confidence multiplier when trading in
+                                        volatile regime via override
+            enable_readiness_gate: If True, gate trend entries based on readiness
+                                   state in paper/backtest modes (default: False)
+            enable_readiness_scaling: If True, scale confidence/position sizing
+                                      based on readiness score (default: False)
+            scaling_factor_max: Maximum readiness scaling factor (default: 1.0)
+            scaling_factor_min: Minimum readiness scaling factor (default: 0.5)
+            runtime_summary_aggregator: Optional aggregator to log periodic runtime
+                                         summaries (readiness/regime/trades)
+            enable_pattern_strategies: If True and in paper mode, auto-enable pattern
+                                       strategies via MultiStrategyAggregator
+            pattern_strategy_weights: Optional weight mapping for pattern strategies
+            trading_mode: Operating mode - 'live', 'paper', or 'backtest'
+                         Readiness gate only applies in non-live modes
+            name: Strategy name (default: "RegimeBasedStrategy")
+            **kwargs: Additional parameters passed to parent
+        """
+        if pd is None:
+            raise ImportError(
+                "pandas required. Install with: pip install pandas"
+            )
+        
+        super().__init__(
+            name=name or "RegimeBasedStrategy",
+            regime_confidence_threshold=regime_confidence_threshold,
+            reduce_confidence_in_marginal_regimes=reduce_confidence_in_marginal_regimes,
+            **kwargs
+        )
+        
+        # Initialize regime detector
+        self.regime_detector = regime_detector or RegimeDetector()
+        
+        # Initialize underlying strategy (default to EMA trend)
+        self.underlying_strategy = underlying_strategy or EMATrendStrategy()
+        
+        # Set allowed regimes (default to TRENDING only)
+        if allowed_regimes is None:
+            self.allowed_regimes = [MarketRegime.TRENDING]
+        else:
+            # Convert strings to MarketRegime enums if needed
+            self.allowed_regimes = []
+            for regime in allowed_regimes:
+                if isinstance(regime, str):
+                    self.allowed_regimes.append(MarketRegime[regime.upper()])
+                elif isinstance(regime, MarketRegime):
+                    self.allowed_regimes.append(regime)
+                else:
+                    raise ValueError(f"Invalid regime type: {type(regime)}")
+        
+        self.regime_confidence_threshold = regime_confidence_threshold
+        self.reduce_confidence_in_marginal_regimes = reduce_confidence_in_marginal_regimes
+        self.allow_volatile_trend_override = allow_volatile_trend_override
+        self.volatile_trend_strength_min = volatile_trend_strength_min
+        self.volatile_confidence_scale = volatile_confidence_scale
+        
+        # PHASE 7: Readiness-gated trend entries (paper/backtest only)
+        self.enable_readiness_gate = enable_readiness_gate
+        self.trading_mode = trading_mode.lower() if trading_mode else 'live'
+
+        # PHASE 8: Readiness-based confidence/size scaling (flag-controlled)
+        self.enable_readiness_scaling = enable_readiness_scaling
+        self.scaling_factor_max = scaling_factor_max
+        self.scaling_factor_min = scaling_factor_min
+        self.runtime_summary_aggregator = runtime_summary_aggregator
+        self.enable_pattern_strategies = enable_pattern_strategies
+        self.pattern_strategy_weights = pattern_strategy_weights or {}
+        if self.scaling_factor_min > self.scaling_factor_max:
+            logger.warning(
+                "scaling_factor_min (%.2f) greater than scaling_factor_max (%.2f); swapping",
+                self.scaling_factor_min,
+                self.scaling_factor_max
+            )
+            self.scaling_factor_min, self.scaling_factor_max = (
+                self.scaling_factor_max,
+                self.scaling_factor_min,
+            )
+        # Clamp to non-negative bounds for safety
+        self.scaling_factor_min = max(0.0, self.scaling_factor_min)
+        self.scaling_factor_max = max(self.scaling_factor_min, self.scaling_factor_max)
+        
+        # PHASE 5: Regime transition diagnostics (observation only)
+        # Track regime persistence
+        self._last_regime = None
+        self._regime_persistence_count = 0
+        
+        # Track EMA slope stability (consecutive cycles with same sign)
+        self._last_slope_sign = None  # 1 for positive, -1 for negative, 0 for neutral
+        self._slope_stability_count = 0
+        
+        # Track trend strength acceleration (consecutive increases)
+        self._last_trend_strength = None
+        self._trend_accel_count = 0  # counts consecutive increases
+        self._last_trend_delta = 0.0
+        
+        # PHASE 6: Regime readiness gate (observation only) - per symbol
+        self._readiness_score = {}  # symbol -> score
+        self._readiness_state = {}  # symbol -> state
+        self._default_symbol = "DEFAULT"  # fallback for single-symbol usage
+
+        # Optional: enable pattern strategies automatically in paper mode only
+        if (
+            underlying_strategy is None
+            and self.enable_pattern_strategies
+            and self.trading_mode == 'paper'
+        ):
+            pattern_strats = [
+                FVGStrategy(),
+                ABCStrategy(),
+                ContinuationStrategy(),
+                ReclamationBlockStrategy(),
+            ]
+            self.underlying_strategy = MultiStrategyAggregator(
+                pattern_strats,
+                weights=self.pattern_strategy_weights,
+                name="PatternMultiStrategy",
+            )
+            logger.info(
+                "[RegimeBasedStrategy] Pattern strategies enabled for paper mode: %s",
+                [s.name for s in pattern_strats],
+            )
+        
+        logger.info(
+            f"RegimeBasedStrategy initialized: "
+            f"underlying={self.underlying_strategy.name}, "
+            f"allowed_regimes={[r.value for r in self.allowed_regimes]}, "
+            f"confidence_threshold={regime_confidence_threshold}, "
+            f"volatile_override={allow_volatile_trend_override}, "
+            f"readiness_gate={enable_readiness_gate}, "
+            f"readiness_scaling={enable_readiness_scaling} "
+            f"[{self.scaling_factor_min:.2f}-{self.scaling_factor_max:.2f}], "
+            f"mode={self.trading_mode}"
+        )
+    
+    def _calculate_regime_readiness_score(self, trend_strength: float) -> float:
+        """
+        Calculate regime readiness score (0.0-1.0) from diagnostic metrics.
+        
+        PHASE 6: Observation-only heuristic to detect trend formation readiness.
+        Uses weighted combination of:
+        - Regime persistence (weight 0.25)
+        - EMA slope stability (weight 0.25)
+        - Trend acceleration (weight 0.25)
+        - Trend strength (weight 0.25)
+        
+        Args:
+            trend_strength: Current trend strength metric
+            
+        Returns:
+            Score between 0.0 (not ready) and 1.0 (fully ready)
+        """
+        # Component 1: Regime persistence (normalized to 0-1)
+        # 8+ cycles = max score
+        persistence_score = min(self._regime_persistence_count / 8.0, 1.0)
+        
+        # Component 2: EMA slope stability (normalized to 0-1)
+        # 5+ cycles = max score
+        stability_score = min(self._slope_stability_count / 5.0, 1.0)
+        
+        # Component 3: Trend acceleration (normalized to 0-1)
+        # 4+ consecutive increases = max score
+        accel_score = min(self._trend_accel_count / 4.0, 1.0)
+        
+        # Component 4: Trend strength (normalized to 0-1)
+        # 3.0+ = max score (aligns with volatile override threshold)
+        strength_score = min(trend_strength / 3.0, 1.0) if trend_strength > 0 else 0.0
+        
+        # Weighted average (equal weights)
+        readiness_score = (
+            0.25 * persistence_score +
+            0.25 * stability_score +
+            0.25 * accel_score +
+            0.25 * strength_score
+        )
+        
+        return readiness_score
+    
+    def _map_readiness_state(self, score: float) -> ReadinessState:
+        """
+        Map readiness score to readiness state enum.
+        
+        Args:
+            score: Readiness score (0.0-1.0)
+            
+        Returns:
+            ReadinessState enum value
+        """
+        if score < 0.34:
+            return ReadinessState.NOT_READY
+        elif score < 0.67:
+            return ReadinessState.FORMING
+        else:
+            return ReadinessState.READY
+
+    def _should_apply_readiness_scaling(self) -> bool:
+        """
+        Determine if readiness-based scaling should be applied.
+
+        Scaling is feature-flagged and allowed in live, paper, or backtest
+        modes (explicitly enabled by caller to avoid altering defaults).
+        """
+        if not self.enable_readiness_scaling:
+            return False
+
+        return self.trading_mode in ['live', 'paper', 'backtest']
+
+    def _calculate_readiness_scaling_factor(self, readiness_score: float) -> float:
+        """
+        Calculate scaling factor based on readiness score and configured bounds.
+
+        Args:
+            readiness_score: Current readiness score (0.0 - 1.0)
+
+        Returns:
+            Scaling factor clamped to [scaling_factor_min, scaling_factor_max]
+        """
+        clamped_score = min(max(readiness_score or 0.0, 0.0), 1.0)
+        span = self.scaling_factor_max - self.scaling_factor_min
+        return self.scaling_factor_min + span * clamped_score
+
+    def _should_apply_readiness_gate(self) -> bool:
+        """
+        Determine if readiness gate should be applied.
+
+        PHASE 7: Readiness gate only applies when:
+        - Feature flag is enabled AND
+        - Trading mode is NOT live (paper or backtest)
+
+        Returns:
+            True if gate should be applied, False otherwise
+        """
+        if not self.enable_readiness_gate:
+            return False
+
+        # Only apply in non-live modes
+        return self.trading_mode in ['paper', 'backtest']
+    
+    def analyze(self, market_data: pd.DataFrame, symbol: Optional[str] = None) -> Optional[Dict[str, Any]]:
+        """
+        Analyze market and return signal dict for LiveTradeManager.
+        
+        This method provides compatibility with LiveTradeManager's expected interface.
+        It returns a dictionary instead of SignalOutput for easier handling by
+        async trading loops that expect JSON-serializable dicts.
+        
+        Args:
+            market_data: DataFrame with OHLCV data
+                        Must have columns: timestamp, open, high, low, close, volume
+            symbol: Optional trading pair symbol for multi-symbol tracking
+                   If None, uses default single-symbol behavior
+        
+        Returns:
+            Dictionary with:
+            - action: 'buy', 'sell', or 'hold'
+            - confidence: float (0.0-1.0)
+            - regime: current market regime
+            - regime_confidence: confidence in regime classification
+            - signal_confidence: confidence in underlying signal (if applicable)
+            - symbol: trading pair symbol (if provided)
+            Or None if analysis fails
+        """
+        sym = symbol or self._default_symbol
+        try:
+            # Validate market data
+            if market_data is None or len(market_data) < 2:
+                logger.warning("Insufficient market data for analysis")
+                return None
+            
+            self.validate_market_data(market_data)
+            
+            # Step 1: Detect market regime
+            regime_result = self.regime_detector.detect(market_data)
+            regime = regime_result['regime']
+            regime_confidence = regime_result['confidence']
+            metrics = regime_result.get('metrics', {})  # metrics computed inside RegimeDetector
+            
+            # PHASE 5: Update regime transition diagnostics (observation only)
+            # Track regime persistence
+            if regime == self._last_regime:
+                self._regime_persistence_count += 1
+            else:
+                self._regime_persistence_count = 1
+                self._last_regime = regime
+            
+            # Track EMA slope stability (consecutive cycles with same slope sign)
+            current_slope = metrics.get('price_slope_pct', 0.0) or 0.0
+            current_slope_sign = 1 if current_slope > 0 else (-1 if current_slope < 0 else 0)
+            
+            if current_slope_sign == self._last_slope_sign and current_slope_sign != 0:
+                self._slope_stability_count += 1
+            else:
+                self._slope_stability_count = 1
+                self._last_slope_sign = current_slope_sign
+            
+            # Track trend strength acceleration (consecutive increases)
+            current_trend_strength = metrics.get('trend_strength', 0.0) or 0.0
+            
+            if self._last_trend_strength is not None:
+                trend_delta = current_trend_strength - self._last_trend_strength
+                
+                if trend_delta > 0 and self._last_trend_delta > 0:
+                    # Trend strength is accelerating (increasing for consecutive cycles)
+                    self._trend_accel_count += 1
+                else:
+                    self._trend_accel_count = 0 if trend_delta <= 0 else 1
+                
+                self._last_trend_delta = trend_delta
+            else:
+                self._last_trend_delta = 0.0
+                self._trend_accel_count = 0
+            
+            self._last_trend_strength = current_trend_strength
+            
+            # Single INFO diagnostic log per decision cycle to explain regime choice
+            def _fmt(val):
+                return f"{val:.2f}" if isinstance(val, (int, float)) else str(val)
+
+            logger.info(
+                "[RegimeDiagnostics] Regime=%s | ADX=%s | ATR%%=%s | "
+                "EMA_slope=%s | TrendStrength=%s | Volatility=%s | VolRatio=%s | "
+                "Confidence=%s",
+                regime.value,
+                _fmt(metrics.get('adx', 'n/a')),                    # ADX (not computed in detector; remains n/a)
+                _fmt(metrics.get('atr_pct', 'n/a')),                # ATR as percent of price
+                _fmt(metrics.get('price_slope_pct', 'n/a')),        # EMA/price slope proxy from price slope
+                _fmt(metrics.get('trend_strength', 'n/a')),
+                _fmt(metrics.get('volatility', 'n/a')),
+                _fmt(metrics.get('vol_ratio', 'n/a')),
+                _fmt(regime_confidence)
+            )
+            
+            # PHASE 5: Emit regime transition diagnostic log
+            # Indicates when volatile market is BEGINNING to trend
+            logger.info(
+                "[RegimeTransition] regime=%s | regime_persistence=%d | "
+                "ema_slope_stable=%d | trend_strength=%s | trend_accel=%s%s",
+                regime.value,
+                self._regime_persistence_count,
+                self._slope_stability_count,
+                _fmt(current_trend_strength),
+                '+' if self._last_trend_delta >= 0 else '',
+                _fmt(self._last_trend_delta)
+            )
+            
+            # PHASE 6: Calculate regime readiness (observation only) - per symbol
+            self._readiness_score[sym] = self._calculate_regime_readiness_score(current_trend_strength)
+            self._readiness_state[sym] = self._map_readiness_state(self._readiness_score[sym])
+            
+            # Emit readiness diagnostic log
+            logger.info(
+                "[RegimeReadiness] symbol=%s | state=%s | score=%.2f | "
+                "persistence=%d | stability=%d | accel=%d | strength=%.2f",
+                sym,
+                self._readiness_state[sym].value,
+                self._readiness_score[sym],
+                self._regime_persistence_count,
+                self._slope_stability_count,
+                self._trend_accel_count,
+                current_trend_strength
+            )
+            
+            # Step 2: Check if regime confidence meets threshold
+            if regime_confidence < self.regime_confidence_threshold:
+                logger.info(
+                    f"[RegimeFilter] Low regime confidence ({regime_confidence:.2f} < "
+                    f"{self.regime_confidence_threshold}) - returning HOLD"
+                )
+                
+                return {
+                    'action': 'hold',
+                    'confidence': 0.0,
+                    'regime': regime.value,
+                    'regime_confidence': regime_confidence,
+                    'reason': 'regime_confidence_below_threshold',
+                    'detail': (
+                        f"Regime classification confidence ({regime_confidence:.2f}) "
+                        f"below threshold ({self.regime_confidence_threshold})"
+                    ),
+                    'allowed_regimes': [r.value for r in self.allowed_regimes],
+                    'underlying_strategy': self.underlying_strategy.name
+                }
+            
+            # Step 3: Check if current regime is allowed (with optional volatile override)
+            volatile_policy_active = (
+                regime == MarketRegime.VOLATILE and self.allow_volatile_trend_override
+            )
+
+            if not volatile_policy_active and regime not in self.allowed_regimes:
+                logger.info(
+                    f"[RegimeFilter] Regime {regime.value} not in allowed list "
+                    f"{[r.value for r in self.allowed_regimes]} - returning HOLD"
+                )
+                
+                return {
+                    'action': 'hold',
+                    'confidence': 0.0,
+                    'regime': regime.value,
+                    'regime_confidence': regime_confidence,
+                    'reason': 'regime_not_allowed',
+                    'detail': (
+                        f"Current regime ({regime.value}) not in allowed regimes "
+                        f"({[r.value for r in self.allowed_regimes]})"
+                    ),
+                    'allowed_regimes': [r.value for r in self.allowed_regimes],
+                    'underlying_strategy': self.underlying_strategy.name
+                }
+            
+            # Step 4: Regime is favorable - delegate to underlying strategy
+            logger.debug(
+                f"[RegimeFilter] Regime {regime.value} is favorable - "
+                f"delegating to {self.underlying_strategy.name}"
+            )
+            
+            # Try to call analyze() on underlying strategy if available
+            underlying_signal = None
+            underlying_confidence = 0.0
+            
+            if hasattr(self.underlying_strategy, 'analyze'):
+                try:
+                    underlying_result = self.underlying_strategy.analyze(market_data)
+                    if underlying_result:
+                        underlying_signal = underlying_result.get('action', 'hold')
+                        underlying_confidence = underlying_result.get('confidence', 0.0)
+                        logger.debug(
+                            f"[Underlying] {self.underlying_strategy.name} returned: "
+                            f"{underlying_signal} (confidence: {underlying_confidence:.2f})"
+                        )
+                except Exception as e:
+                    logger.warning(
+                        f"[Underlying] {self.underlying_strategy.name}.analyze() failed: {e} - "
+                        f"falling back to generate_signal()"
+                    )
+            
+            # Fall back to generate_signal() if analyze() not available
+            if underlying_signal is None:
+                try:
+                    position_state = PositionState()  # Default position state
+                    signal_output = self.underlying_strategy.generate_signal(
+                        market_data=market_data,
+                        position_state=position_state
+                    )
+                    underlying_signal = signal_output.signal.value.lower()
+                    underlying_confidence = signal_output.confidence
+                    logger.debug(
+                        f"[Underlying] {self.underlying_strategy.name} returned: "
+                        f"{underlying_signal} (confidence: {underlying_confidence:.2f})"
+                    )
+                except Exception as e:
+                    logger.error(
+                        f"[Underlying] Failed to get signal from {self.underlying_strategy.name}: {e}"
+                    )
+                    return {
+                        'action': 'hold',
+                        'confidence': 0.0,
+                        'regime': regime.value,
+                        'regime_confidence': regime_confidence,
+                        'reason': 'underlying_strategy_error',
+                        'detail': f"Failed to analyze with {self.underlying_strategy.name}: {str(e)}"
+                    }
+            
+            # Step 5: Optional volatile override gating based on trend strength and alignment
+            volatile_override_used = False
+            if volatile_policy_active:
+                trend_strength = metrics.get('trend_strength', 0.0) or 0.0
+                slope_pct = metrics.get('price_slope_pct', 0.0) or 0.0
+                alignment_ok = (
+                    (underlying_signal == 'buy' and slope_pct > 0)
+                    or (underlying_signal == 'sell' and slope_pct < 0)
+                )
+
+                if underlying_signal == 'hold':
+                    return {
+                        'action': 'hold',
+                        'confidence': 0.0,
+                        'regime': regime.value,
+                        'regime_confidence': regime_confidence,
+                        'reason': 'volatile_override_no_signal',
+                        'detail': 'Underlying strategy returned HOLD in volatile regime',
+                        'allowed_regimes': [r.value for r in self.allowed_regimes],
+                        'underlying_strategy': self.underlying_strategy.name
+                    }
+
+                if trend_strength < self.volatile_trend_strength_min or not alignment_ok:
+                    logger.info(
+                        f"[VolatilePolicy] Blocked trade in volatile regime: "
+                        f"trend_strength={trend_strength:.2f} (min {self.volatile_trend_strength_min}), "
+                        f"alignment_ok={alignment_ok}"
+                    )
+                    return {
+                        'action': 'hold',
+                        'confidence': 0.0,
+                        'regime': regime.value,
+                        'regime_confidence': regime_confidence,
+                        'reason': 'volatile_policy_blocked',
+                        'detail': (
+                            f"trend_strength={trend_strength:.2f}, alignment_ok={alignment_ok}, "
+                            f"threshold={self.volatile_trend_strength_min}"
+                        ),
+                        'allowed_regimes': [r.value for r in self.allowed_regimes],
+                        'underlying_strategy': self.underlying_strategy.name
+                    }
+
+                # Volatile trade allowed under policy; scale confidence down
+                volatile_override_used = True
+                logger.info(
+                    f"[VolatilePolicy] Allowing trade in volatile regime with "
+                    f"trend_strength={trend_strength:.2f}, slope_pct={slope_pct:.2f}, "
+                    f"signal={underlying_signal}, confidence_scale={self.volatile_confidence_scale:.2f}"
+                )
+                underlying_confidence *= self.volatile_confidence_scale
+
+            # Step 6: Optionally adjust confidence based on regime confidence
+            adjusted_confidence = underlying_confidence
+
+            if self.reduce_confidence_in_marginal_regimes and regime_confidence < 1.0:
+                # Scale underlying signal confidence by regime confidence
+                adjusted_confidence = underlying_confidence * regime_confidence
+                
+                if adjusted_confidence != underlying_confidence:
+                    logger.debug(
+                        f"[ConfidenceAdjustment] Scaled from {underlying_confidence:.2f} "
+                        f"to {adjusted_confidence:.2f} based on regime confidence {regime_confidence:.2f}"
+                    )
+            
+            # Step 6: Return final signal with comprehensive metadata
+            return_dict = {
+                'action': underlying_signal,
+                'confidence': adjusted_confidence,
+                'regime': regime.value,
+                'regime_confidence': regime_confidence,
+                'signal_confidence': underlying_confidence,
+                'confidence_adjusted': adjusted_confidence != underlying_confidence or volatile_override_used,
+                'underlying_strategy': self.underlying_strategy.name,
+                'allowed_regimes': [r.value for r in self.allowed_regimes]
+            }
+
+            # Surface underlying contributions if provided (e.g., aggregator)
+            if underlying_result and isinstance(underlying_result, dict):
+                if 'contributions' in underlying_result:
+                    return_dict['contributions'] = underlying_result['contributions']
+
+            # PHASE 7: Apply readiness gate (paper/backtest only)
+            if self._should_apply_readiness_gate():
+                is_trend_signal = underlying_signal in ['buy', 'sell']
+                is_trend_regime = (regime == MarketRegime.TRENDING) or (
+                    regime == MarketRegime.VOLATILE and volatile_policy_active
+                )
+
+                if is_trend_signal and is_trend_regime:
+                    if self._readiness_state[sym] != ReadinessState.READY:
+                        logger.info(
+                            "[ReadinessGate] BLOCKED: symbol=%s | signal=%s | regime=%s | "
+                            "readiness=%s (score=%.2f) | mode=%s | RETURNING HOLD",
+                            sym,
+                            underlying_signal,
+                            regime.value,
+                            self._readiness_state[sym].value,
+                            self._readiness_score[sym],
+                            self.trading_mode
+                        )
+                        return_dict['action'] = 'hold'
+                        return_dict['confidence'] = 0.0
+                        return_dict['reason'] = 'readiness_gate_blocked'
+                        return_dict['detail'] = (
+                            f"Readiness state {self._readiness_state.value} != READY. "
+                            f"Score: {self._readiness_score:.2f}"
+                        )
+                    else:
+                        logger.info(
+                            "[ReadinessGate] ALLOWED: symbol=%s | signal=%s | regime=%s | "
+                            "readiness=%s (score=%.2f) | mode=%s",
+                            sym,
+                            underlying_signal,
+                            regime.value,
+                            self._readiness_state[sym].value,
+                            self._readiness_score[sym],
+                            self.trading_mode
+                        )
+
+            # PHASE 8: Apply readiness-based scaling (flag-controlled, mode-aware)
+            if (
+                self._should_apply_readiness_scaling()
+                and return_dict['action'] in ['buy', 'sell']
+            ):
+                original_confidence = return_dict['confidence']
+                scale_factor = self._calculate_readiness_scaling_factor(self._readiness_score[sym])
+                scaled_confidence = min(max(original_confidence * scale_factor, 0.0), 1.0)
+                position_fraction = scaled_confidence
+
+                return_dict['readiness_scale_factor'] = scale_factor
+                return_dict['confidence_pre_scaling'] = original_confidence
+                return_dict['position_size_scale'] = position_fraction
+
+                if scaled_confidence != original_confidence:
+                    return_dict['confidence'] = scaled_confidence
+                    return_dict['confidence_adjusted'] = True
+
+                logger.info(
+                    "[ReadinessScaling] symbol=%s | state=%s | score=%.2f | "
+                    "original_confidence=%.2f | scaled_confidence=%.2f | "
+                    "position_fraction=%.2f | mode=%s",
+                    sym,
+                    self._readiness_state[sym].value,
+                    self._readiness_score[sym],
+                    original_confidence,
+                    scaled_confidence,
+                    position_fraction,
+                    self.trading_mode
+                )
+
+            # Emit runtime summary sample (non-blocking) if aggregator provided
+            if self.runtime_summary_aggregator:
+                try:
+                    self.runtime_summary_aggregator.record_cycle(
+                        readiness_state=self._readiness_state[sym].value,
+                        regime=regime.value,
+                        action=return_dict['action']
+                    )
+                except Exception as exc:
+                    logger.debug(
+                        "[RuntimeSummary] failed to record sample: %s", exc
+                    )
+
+            # Add symbol to result if provided
+            if symbol is not None:
+                return_dict['symbol'] = symbol
+
+            return return_dict
+        
+        except Exception as e:
+            logger.error(f"[RegimeBasedStrategy.analyze()] Unexpected error: {e}")
+            return None
+    
+    def generate_signal(
+        self,
+        market_data: pd.DataFrame,
+        position_state: PositionState
+    ) -> SignalOutput:
+        """
+        Generate trading signal based on market regime and underlying strategy.
+        
+        Process:
+        1. Validate market data
+        2. Detect current market regime
+        3. Check if regime is in allowed list
+        4. If allowed: delegate to underlying strategy
+        5. If not allowed: return HOLD
+        6. Optionally adjust confidence based on regime confidence
+        
+        Args:
+            market_data: DataFrame with OHLCV data
+                        Must have columns: timestamp, open, high, low, close, volume
+            position_state: Current position state
+            
+        Returns:
+            SignalOutput with signal, confidence, and detailed regime metadata
+            
+        Raises:
+            ValueError: If market data is invalid
+        """
+        # Validate market data
+        self.validate_market_data(market_data)
+        
+        # Step 1: Detect market regime
+        regime_result = self.regime_detector.detect(market_data)
+        regime = regime_result['regime']
+        regime_confidence = regime_result['confidence']
+        regime_metrics = regime_result['metrics']
+        regime_explanation = regime_result['explanation']
+        
+        logger.info(
+            f"[RegimeDetector] Regime: {regime.value}, "
+            f"Confidence: {regime_confidence:.2f}"
+        )
+        
+        # Step 2: Check if regime confidence meets threshold
+        if regime_confidence < self.regime_confidence_threshold:
+            logger.warning(
+                f"[RegimeDetector] Low regime confidence ({regime_confidence:.2f} < "
+                f"{self.regime_confidence_threshold}), treating as uncertain"
+            )
+            
+            # In uncertain conditions, default to HOLD for safety
+            return self.create_signal(
+                signal=Signal.HOLD,
+                confidence=0.0,
+                regime=regime.value,
+                regime_confidence=regime_confidence,
+                regime_metrics=regime_metrics,
+                regime_explanation=regime_explanation,
+                decision="hold_due_to_uncertain_regime",
+                decision_reason=(
+                    f"Regime classification confidence ({regime_confidence:.2f}) "
+                    f"below threshold ({self.regime_confidence_threshold})"
+                ),
+                underlying_strategy=self.underlying_strategy.name,
+                allowed_regimes=[r.value for r in self.allowed_regimes]
+            )
+        
+        # Step 3: Check if current regime is allowed (with optional volatile override)
+        volatile_policy_active = (
+            regime == MarketRegime.VOLATILE and self.allow_volatile_trend_override
+        )
+
+        if not volatile_policy_active and regime not in self.allowed_regimes:
+            logger.info(
+                f"[RegimeFilter] Regime {regime.value} not in allowed list "
+                f"{[r.value for r in self.allowed_regimes]} - returning HOLD"
+            )
+            
+            return self.create_signal(
+                signal=Signal.HOLD,
+                confidence=0.0,
+                regime=regime.value,
+                regime_confidence=regime_confidence,
+                regime_metrics=regime_metrics,
+                regime_explanation=regime_explanation,
+                decision="hold_due_to_unfavorable_regime",
+                decision_reason=(
+                    f"Current regime ({regime.value}) not in allowed regimes "
+                    f"({[r.value for r in self.allowed_regimes]})"
+                ),
+                underlying_strategy=self.underlying_strategy.name,
+                allowed_regimes=[r.value for r in self.allowed_regimes]
+            )
+        
+        # Step 4: Regime is favorable - delegate to underlying strategy (or volatile override path)
+        logger.info(
+            f"[RegimeFilter] Regime {regime.value} is favorable - "
+            f"delegating to {self.underlying_strategy.name}"
+        )
+        
+        underlying_signal = self.underlying_strategy.generate_signal(
+            market_data=market_data,
+            position_state=position_state
+        )
+        
+        # Step 5: Optional volatile override gating based on trend strength and alignment
+        volatile_override_used = False
+        adjusted_confidence = underlying_signal.confidence
+
+        if volatile_policy_active:
+            trend_strength = regime_metrics.get('trend_strength', 0.0) or 0.0
+            slope_pct = regime_metrics.get('price_slope_pct', 0.0) or 0.0
+            alignment_ok = (
+                (underlying_signal.signal == Signal.BUY and slope_pct > 0)
+                or (underlying_signal.signal == Signal.SELL and slope_pct < 0)
+            )
+
+            if underlying_signal.signal == Signal.HOLD:
+                return self.create_signal(
+                    signal=Signal.HOLD,
+                    confidence=0.0,
+                    regime=regime.value,
+                    regime_confidence=regime_confidence,
+                    regime_metrics=regime_metrics,
+                    regime_explanation=regime_explanation,
+                    decision="volatile_override_no_signal",
+                    decision_reason="Underlying strategy returned HOLD in volatile regime",
+                    underlying_strategy=self.underlying_strategy.name,
+                    allowed_regimes=[r.value for r in self.allowed_regimes]
+                )
+
+            if trend_strength < self.volatile_trend_strength_min or not alignment_ok:
+                logger.info(
+                    f"[VolatilePolicy] Blocked trade in volatile regime: "
+                    f"trend_strength={trend_strength:.2f} (min {self.volatile_trend_strength_min}), "
+                    f"alignment_ok={alignment_ok}"
+                )
+                return self.create_signal(
+                    signal=Signal.HOLD,
+                    confidence=0.0,
+                    regime=regime.value,
+                    regime_confidence=regime_confidence,
+                    regime_metrics=regime_metrics,
+                    regime_explanation=regime_explanation,
+                    decision="volatile_policy_blocked",
+                    decision_reason=(
+                        f"trend_strength={trend_strength:.2f}, alignment_ok={alignment_ok}, "
+                        f"threshold={self.volatile_trend_strength_min}"
+                    ),
+                    underlying_strategy=self.underlying_strategy.name,
+                    allowed_regimes=[r.value for r in self.allowed_regimes]
+                )
+
+            # Allow trade with scaled confidence when volatile override is active
+            volatile_override_used = True
+            adjusted_confidence = underlying_signal.confidence * self.volatile_confidence_scale
+            logger.info(
+                f"[VolatilePolicy] Allowing trade in volatile regime with "
+                f"trend_strength={trend_strength:.2f}, slope_pct={slope_pct:.2f}, "
+                f"signal={underlying_signal.signal.value.lower()}, "
+                f"confidence_scale={self.volatile_confidence_scale:.2f}"
+            )
+
+        # Step 6: Optionally adjust confidence based on regime confidence
+        if self.reduce_confidence_in_marginal_regimes:
+            # Scale underlying signal confidence by regime confidence
+            # This reduces position size when regime classification is uncertain
+            prev_confidence = adjusted_confidence
+            adjusted_confidence = adjusted_confidence * regime_confidence
+            
+            if adjusted_confidence != prev_confidence:
+                logger.info(
+                    f"[ConfidenceAdjustment] Scaled from {prev_confidence:.2f} "
+                    f"to {adjusted_confidence:.2f} based on regime confidence"
+                )
+        
+        # Step 6: Create final signal with comprehensive metadata
+        return self.create_signal(
+            signal=underlying_signal.signal,
+            confidence=adjusted_confidence,
+            regime=regime.value,
+            regime_confidence=regime_confidence,
+            regime_metrics=regime_metrics,
+            regime_explanation=regime_explanation,
+            decision="delegate_to_underlying_strategy",
+            decision_reason=(
+                f"Regime {regime.value} is favorable for {self.underlying_strategy.name}"
+            ),
+            underlying_strategy=self.underlying_strategy.name,
+            underlying_signal=underlying_signal.signal.value,
+            underlying_confidence=underlying_signal.confidence,
+            underlying_metadata=underlying_signal.metadata,
+            confidence_adjusted=(adjusted_confidence != underlying_signal.confidence or volatile_override_used),
+            allowed_regimes=[r.value for r in self.allowed_regimes]
+        )
+    
+    def get_regime_status(self, market_data: pd.DataFrame) -> Dict[str, Any]:
+        """
+        Get current regime status without generating a signal.
+        
+        Useful for monitoring and diagnostics.
+        
+        Args:
+            market_data: DataFrame with OHLCV data
+            
+        Returns:
+            Dictionary with regime information
+        """
+        regime_result = self.regime_detector.detect(market_data)
+        return {
+            'regime': regime_result['regime'].value,
+            'confidence': regime_result['confidence'],
+            'metrics': regime_result['metrics'],
+            'explanation': regime_result['explanation'],
+            'is_allowed': regime_result['regime'] in self.allowed_regimes,
+            'allowed_regimes': [r.value for r in self.allowed_regimes]
+        }
+    
+    def set_allowed_regimes(self, regimes: list) -> None:
+        """
+        Update allowed regimes.
+        
+        Args:
+            regimes: List of MarketRegime values or strings
+        """
+        self.allowed_regimes = []
+        for regime in regimes:
+            if isinstance(regime, str):
+                self.allowed_regimes.append(MarketRegime[regime.upper()])
+            elif isinstance(regime, MarketRegime):
+                self.allowed_regimes.append(regime)
+            else:
+                raise ValueError(f"Invalid regime type: {type(regime)}")
+        
+        logger.info(
+            f"Updated allowed regimes: {[r.value for r in self.allowed_regimes]}"
+        )
+    
+    def get_underlying_strategy(self) -> BaseStrategy:
+        """
+        Get the underlying strategy instance.
+        
+        Returns:
+            Underlying strategy
+        """
+        return self.underlying_strategy
+    
+    def set_underlying_strategy(self, strategy: BaseStrategy) -> None:
+        """
+        Replace the underlying strategy.
+        
+        Args:
+            strategy: New underlying strategy
+        """
+        if not isinstance(strategy, BaseStrategy):
+            raise ValueError(
+                f"strategy must be BaseStrategy instance, got {type(strategy)}"
+            )
+        
+        old_name = self.underlying_strategy.name
+        self.underlying_strategy = strategy
+        
+        logger.info(
+            f"Underlying strategy changed: {old_name} -> {strategy.name}"
+        )
+    
+    def get_configuration(self) -> Dict[str, Any]:
+        """
+        Get complete strategy configuration.
+        
+        Returns:
+            Configuration dictionary
+        """
+        return {
+            'strategy_name': self.name,
+            'underlying_strategy': self.underlying_strategy.name,
+            'underlying_parameters': self.underlying_strategy.get_all_parameters(),
+            'regime_detector_parameters': self.regime_detector.get_parameters(),
+            'allowed_regimes': [r.value for r in self.allowed_regimes],
+            'regime_confidence_threshold': self.regime_confidence_threshold,
+            'reduce_confidence_in_marginal_regimes': self.reduce_confidence_in_marginal_regimes,
+            'allow_volatile_trend_override': self.allow_volatile_trend_override,
+            'volatile_trend_strength_min': self.volatile_trend_strength_min,
+            'volatile_confidence_scale': self.volatile_confidence_scale
+        }
+    
+    def __repr__(self) -> str:
+        """String representation."""
+        return (
+            f"RegimeBasedStrategy("
+            f"underlying={self.underlying_strategy.name}, "
+            f"allowed_regimes={[r.value for r in self.allowed_regimes]})"
+        )

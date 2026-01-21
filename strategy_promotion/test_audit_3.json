@@ -1,0 +1,65 @@
+{
+  "strategy_id": "test_audit_3",
+  "state": "retired",
+  "alpha_lab_report_path": {},
+  "approved_by": "human",
+  "approval_date": "2026-01-05T15:31:25.953361+00:00",
+  "approval_notes": "",
+  "state_history": [
+    {
+      "from_state": null,
+      "to_state": "research",
+      "timestamp": "2026-01-05T15:31:25.952904+00:00",
+      "action": "submitted",
+      "by": "system",
+      "reason": null,
+      "validation_results": null,
+      "notes": ""
+    },
+    {
+      "from_state": "research",
+      "to_state": "approved",
+      "timestamp": "2026-01-05T15:31:25.953367+00:00",
+      "action": "approved",
+      "by": "human",
+      "reason": null,
+      "validation_results": null,
+      "notes": ""
+    },
+    {
+      "from_state": "approved",
+      "to_state": "shadow",
+      "timestamp": "2026-01-05T15:31:25.955187+00:00",
+      "action": "promoted",
+      "by": null,
+      "reason": null,
+      "validation_results": null,
+      "notes": ""
+    },
+    {
+      "from_state": "shadow",
+      "to_state": "paper",
+      "timestamp": "2026-01-05T15:31:25.959624+00:00",
+      "action": "promoted",
+      "by": null,
+      "reason": null,
+      "validation_results": null,
+      "notes": ""
+    },
+    {
+      "from_state": "paper",
+      "to_state": "retired",
+      "timestamp": "2026-01-05T15:31:25.961129+00:00",
+      "action": "demoted",
+      "by": "system",
+      "reason": "max_drawdown_exceeded",
+      "validation_results": null,
+      "notes": ""
+    }
+  ],
+  "shadow_metrics": {},
+  "paper_metrics": {},
+  "live_metrics": {},
+  "created_at": "2026-01-05T15:31:25.952896+00:00",
+  "last_updated": "2026-01-05T15:31:25.961121+00:00"
+}

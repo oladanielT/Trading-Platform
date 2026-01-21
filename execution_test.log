@@ -1,0 +1,83 @@
+2026-01-07 23:11:14,580 - __main__ - INFO - ================================================================================
+2026-01-07 23:11:14,581 - __main__ - INFO - TRADING PLATFORM INITIALIZATION
+2026-01-07 23:11:14,581 - __main__ - INFO - ================================================================================
+2026-01-07 23:11:14,582 - __main__ - INFO - Loading configuration from LIVE_DATA_CONFIG.yaml
+2026-01-07 23:11:14,595 - __main__ - INFO - Configuration loaded successfully
+2026-01-07 23:11:14,596 - __main__ - INFO - [1/6] Initializing Core Module (Environment & State)
+2026-01-07 23:11:14,596 - __main__ - INFO -    ✓ TradingState initialized: paper
+2026-01-07 23:11:14,597 - core.environment - WARNING - Environment file not found: .env
+2026-01-07 23:11:14,597 - __main__ - INFO -    ✓ EnvironmentManager initialized
+2026-01-07 23:11:14,598 - __main__ - INFO - [2/6] Initializing Monitoring Module (Logger & Metrics)
+2026-01-07 23:11:14,598 - __main__ - INFO -    ✓ LoggerManager configured
+2026-01-07 23:11:14,599 - __main__ - INFO -    ✓ MetricsCollector initialized
+2026-01-07 23:11:14,599 - __main__ - INFO - [3/6] Initializing Data Module (Exchange & Market Feed)
+2026-01-07 23:11:14,625 - __main__ - INFO -    ✓ ExchangeConnector connected: binance (paper)
+2026-01-07 23:11:14,625 - data.market_feed - INFO - MarketFeed initialized with exchange: binance
+2026-01-07 23:11:14,626 - __main__ - INFO -    ✓ MarketFeed initialized
+2026-01-07 23:11:14,626 - __main__ - INFO - [4/6] Initializing Strategy Module (Signal Generation)
+2026-01-07 23:11:14,626 - __main__ - WARNING - [Strategy] Unknown strategy in multi_strategy: EMATrendStrategy
+2026-01-07 23:11:14,626 - strategies.base - INFO - Strategy 'ContinuationStrategy' initialized with parameters: {'lookback': 50, 'min_impulse_pct': 1.2, 'min_retracement': 0.15, 'max_retracement': 0.75, 'min_consolidation_candles': 3, 'max_consolidation_candles': 35, 'volume_surge_threshold': 1.1}
+2026-01-07 23:11:14,626 - strategies.base - INFO - Strategy 'FVGStrategy' initialized with parameters: {'lookback': 100, 'min_gap_size_pct': 0.2, 'max_gap_age': 150, 'require_volume_spike': False, 'volume_spike_multiplier': 1.5, 'require_momentum': False, 'min_fill_pct': 0.2, 'max_fill_pct': 0.98}
+2026-01-07 23:11:14,626 - strategies.base - INFO - Strategy 'MultiStrategyAggregator' initialized with parameters: {}
+2026-01-07 23:11:14,626 - strategies.base - INFO - Strategy 'RegimeBasedStrategy' initialized with parameters: {'regime_confidence_threshold': 0.5, 'reduce_confidence_in_marginal_regimes': True}
+2026-01-07 23:11:14,627 - strategies.regime_detector - INFO - RegimeDetector initialized with lookback=100, vol_thresholds=(0.010, 0.030)
+2026-01-07 23:11:14,627 - strategies.regime_strategy - INFO - RegimeBasedStrategy initialized: underlying=MultiStrategyAggregator, allowed_regimes=['trending', 'quiet', 'volatile'], confidence_threshold=0.5, volatile_override=False, readiness_gate=False, readiness_scaling=False [0.50-1.00], mode=live
+2026-01-07 23:11:14,627 - __main__ - INFO -    ✓ Strategy initialized: RegimeBasedStrategy
+2026-01-07 23:11:14,627 - __main__ - INFO - [5/10] Initializing Risk Module (Position Sizing & Drawdown Guard)
+2026-01-07 23:11:14,627 - risk.position_sizing - INFO - PositionSizer initialized: equity=$1000.00, risk=2.00%, method=fixed_fractional
+2026-01-07 23:11:14,627 - __main__ - INFO -    ✓ PositionSizer initialized: fixed_fractional
+2026-01-07 23:11:14,628 - risk.drawdown_guard - INFO - DrawdownGuard initialized: equity=$1000.00, max_daily_dd=5.0%, max_total_dd=20.0%
+2026-01-07 23:11:14,628 - __main__ - INFO -    ✓ DrawdownGuard initialized
+2026-01-07 23:11:14,628 - __main__ - INFO - [6/10] Initializing Portfolio Risk Module (Correlation & Exposure Control)
+2026-01-07 23:11:14,628 - __main__ - INFO -    ✓ PortfolioRiskManager disabled (set portfolio_risk.enabled=True to enable)
+2026-01-07 23:11:14,628 - __main__ - INFO - [7/10] Initializing Regime Capital Module (Capital Allocation)
+2026-01-07 23:11:14,628 - __main__ - INFO -    ✓ RegimeCapitalAllocator disabled (set regime_capital.enabled=True to enable)
+2026-01-07 23:11:14,628 - __main__ - INFO - [8/10] Initializing Execution Module (Broker & Order Manager)
+2026-01-07 23:11:14,628 - execution.broker - INFO - PaperBroker initialized: mode=paper, slippage=5.0bps, fees=10.0bps
+2026-01-07 23:11:14,628 - execution.broker - INFO - Broker initialized: mode=paper, initial_cash=$1,000.00
+2026-01-07 23:11:14,629 - __main__ - INFO -    ✓ Broker initialized: paper
+2026-01-07 23:11:14,629 - execution.order_manager - INFO - OrderManager initialized: max_concurrent=5, max_attempts=3
+2026-01-07 23:11:14,629 - __main__ - INFO -    ✓ OrderManager initialized
+2026-01-07 23:11:14,629 - __main__ - INFO - [9/10] Initializing Execution Reality Module (Market Impact)
+2026-01-07 23:11:14,630 - execution.execution_reality_engine - INFO - [EXECUTION_REALITY] Engine initialized: enabled=False, model=conservative, min_fill_prob=60.0%
+2026-01-07 23:11:14,630 - __main__ - INFO -    ✓ Execution Reality disabled (set execution_reality.enabled=True to enable)
+2026-01-07 23:11:14,630 - __main__ - INFO - [10/10] Initializing Optimization Module (Performance Enhancement)
+2026-01-07 23:11:14,630 - __main__ - INFO -    ✓ Optimization disabled (set optimization.enabled=True to enable)
+2026-01-07 23:11:14,630 - __main__ - INFO - ================================================================================
+2026-01-07 23:11:14,630 - __main__ - INFO - PLATFORM INITIALIZATION COMPLETE
+2026-01-07 23:11:14,630 - __main__ - INFO - ================================================================================
+2026-01-07 23:11:14,630 INFO platform.initialized {"environment":"paper","exchange":"binance","symbol":"BTC/USDT","strategy":"RegimeBasedStrategy"}
+2026-01-07 23:11:14,631 - __main__ - INFO - ================================================================================
+2026-01-07 23:11:14,631 - __main__ - INFO - STARTING TRADING LOOP
+2026-01-07 23:11:14,631 - __main__ - INFO - ================================================================================
+2026-01-07 23:11:14,631 INFO trading.loop_started {"environment":"paper","symbol":"BTC/USDT"}
+2026-01-07 23:11:14,632 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-07 23:11:14,632 - __main__ - INFO - Trading Loop Iteration - 2026-01-07T22:11:14.632135
+2026-01-07 23:11:14,632 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-07 23:11:14,646 - data.exchange - INFO - Generated 500 synthetic 1h candles for BTC/USDT ($42245.52 → $56704.58)
+2026-01-07 23:11:14,668 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 02:11:14.632000+00:00 to 2026-01-07 21:11:14.632000+00:00)
+2026-01-07 23:11:14,668 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-07 23:11:14,668 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-07 23:11:14,670 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.91
+2026-01-07 23:11:14,670 - strategies.regime_strategy - INFO - [RegimeFilter] Regime volatile is favorable - delegating to MultiStrategyAggregator
+2026-01-07 23:11:14,823 - strategies.multi_strategy_aggregator - INFO - [MultiStrategy] strat=ContinuationStrategy action=hold conf=0.000
+2026-01-07 23:11:14,885 - strategies.multi_strategy_aggregator - INFO - [MultiStrategy] strat=FVGStrategy action=hold conf=0.000
+2026-01-07 23:11:14,885 - strategies.multi_strategy_aggregator - INFO - [MultiStrategy] final=hold 0.000 | contributions=[{'strategy': 'ContinuationStrategy', 'action': 'hold', 'confidence': 0.0, 'weight': 0.4}, {'strategy': 'FVGStrategy', 'action': 'hold', 'confidence': 0.0, 'weight': 0.3}]
+2026-01-07 23:11:14,885 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.91)
+2026-01-07 23:11:14,885 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.9071331281969601,"regime_metrics":{"volatility":0.33011054353297925,"trend_strength":0.14254919887813955,"price_efficiency":0.011732980976774115,"price_slope_pct":-0.04705699494734539,"atr_pct":3.5945741308252384,"vol_ratio":0.06506205986989784,"mean_return":0.00017295427132556023,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.330 (threshold=0.030). Market showing unpredictable movements.","decision":"delegate_to_underlying_strategy","decision_reason":"Regime volatile is favorable for MultiStrategyAggregator","underlying_strategy":"MultiStrategyAggregator","underlying_signal":"HOLD","underlying_confidence":0.0,"underlying_metadata":{"contributions":[{"strategy":"ContinuationStrategy","action":"hold","confidence":0.0,"weight":0.4},{"strategy":"FVGStrategy","action":"hold","confidence":0.0,"weight":0.3}]},"confidence_adjusted":false,"allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-07 23:11:14,886 - __main__ - INFO - [STRATEGY] HOLD signal - no action required
+2026-01-07 23:12:14,947 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-07 23:12:14,949 - __main__ - INFO - Trading Loop Iteration - 2026-01-07T22:12:14.949487
+2026-01-07 23:12:14,949 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-07 23:12:14,958 - data.exchange - INFO - Generated 500 synthetic 1h candles for BTC/USDT ($42245.52 → $56704.58)
+2026-01-07 23:12:14,988 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 02:12:14.950000+00:00 to 2026-01-07 21:12:14.950000+00:00)
+2026-01-07 23:12:14,989 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-07 23:12:14,989 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-07 23:12:14,992 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.91
+2026-01-07 23:12:14,993 - strategies.regime_strategy - INFO - [RegimeFilter] Regime volatile is favorable - delegating to MultiStrategyAggregator
+2026-01-07 23:12:15,092 - strategies.multi_strategy_aggregator - INFO - [MultiStrategy] strat=ContinuationStrategy action=hold conf=0.000
+2026-01-07 23:12:15,159 - strategies.multi_strategy_aggregator - INFO - [MultiStrategy] strat=FVGStrategy action=hold conf=0.000
+2026-01-07 23:12:15,159 - strategies.multi_strategy_aggregator - INFO - [MultiStrategy] final=hold 0.000 | contributions=[{'strategy': 'ContinuationStrategy', 'action': 'hold', 'confidence': 0.0, 'weight': 0.4}, {'strategy': 'FVGStrategy', 'action': 'hold', 'confidence': 0.0, 'weight': 0.3}]
+2026-01-07 23:12:15,160 - __main__ - INFO - [STRATEGY] Signal: HOLD (confidence: 0.00) | Regime: volatile (conf: 0.91)
+2026-01-07 23:12:15,160 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"regime":"volatile","regime_confidence":0.9071331281969601,"regime_metrics":{"volatility":0.33011054353297925,"trend_strength":0.14254919887813955,"price_efficiency":0.011732980976774115,"price_slope_pct":-0.04705699494734539,"atr_pct":3.5945741308252384,"vol_ratio":0.06506205986989784,"mean_return":0.00017295427132556023,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.330 (threshold=0.030). Market showing unpredictable movements.","decision":"delegate_to_underlying_strategy","decision_reason":"Regime volatile is favorable for MultiStrategyAggregator","underlying_strategy":"MultiStrategyAggregator","underlying_signal":"HOLD","underlying_confidence":0.0,"underlying_metadata":{"contributions":[{"strategy":"ContinuationStrategy","action":"hold","confidence":0.0,"weight":0.4},{"strategy":"FVGStrategy","action":"hold","confidence":0.0,"weight":0.3}]},"confidence_adjusted":false,"allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-07 23:12:15,161 - __main__ - INFO - [STRATEGY] HOLD signal - no action required

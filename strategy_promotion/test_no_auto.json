@@ -1,0 +1,21 @@
+{
+  "strategy_id": "test_no_auto",
+  "state": "research",
+  "alpha_lab_report_path": {},
+  "approved_by": null,
+  "approval_date": null,
+  "approval_notes": "",
+  "state_history": [
+    {
+      "state": "research",
+      "timestamp": "2026-01-05T15:18:40.572576+00:00",
+      "action": "submitted",
+      "by": "system"
+    }
+  ],
+  "shadow_metrics": {},
+  "paper_metrics": {},
+  "live_metrics": {},
+  "created_at": "2026-01-05T15:18:40.572565+00:00",
+  "last_updated": "2026-01-05T15:18:40.572571+00:00"
+}

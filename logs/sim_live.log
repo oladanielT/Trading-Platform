@@ -1,0 +1,701 @@
+2026-01-06 20:46:53,636 INFO platform.initialized {"environment":"testnet","exchange":"binance","symbol":"BTC/USDT","strategy":"EMATrendStrategy"}
+2026-01-06 20:46:53,637 INFO trading.loop_started {"environment":"testnet","symbol":"BTC/USDT"}
+2026-01-06 20:46:58,423 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 20:48:35,114 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 20:49:43,177 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 20:51:20,385 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 20:52:22,201 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 20:53:25,438 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 20:54:37,974 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 20:55:46,082 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 20:56:54,179 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 20:58:03,125 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 20:59:40,906 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 21:00:47,932 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 21:01:49,748 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 21:02:51,349 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 21:04:00,094 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 21:05:02,786 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 21:06:09,756 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 21:07:13,408 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 21:08:16,471 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 21:09:19,260 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 21:10:21,708 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 21:11:59,458 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 21:14:05,062 ERROR trading.loop_error
+Traceback (most recent call last):
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 336, in _page_call
+    return await self._client.fetch_ohlcv(symbol, timeframe, since, limit)
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/binance.py", line 4693, in fetch_ohlcv
+    response = await self.publicGetKlines(self.extend(request, params))
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/binance.py", line 11509, in request
+    response = await self.fetch2(path, api, method, params, headers, body, config)
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 886, in fetch2
+    return await self.fetch(request['url'], request['method'], request['headers'], request['body'])
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 212, in fetch
+    async with session_method(yarl.URL(url, encoded=True),
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/client.py", line 1360, in __aenter__
+    self._resp: _RetType = await self._coro
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/client.py", line 663, in _request
+    conn = await self._connector.connect(
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 538, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 1050, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 1335, in _create_direct_connection
+    hosts = await self._resolve_host(host, port, traces=traces)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 964, in _resolve_host
+    await future
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/asyncio/tasks.py", line 456, in wait_for
+    return fut.result()
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/oladan/Trading-Platform/main.py", line 857, in run_trading_loop
+    market_data = await self.market_feed.fetch(
+  File "/home/oladan/Trading-Platform/data/market_feed.py", line 108, in fetch
+    raw_ohlcv = await self._exchange.fetch_ohlcv_range(
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 338, in fetch_ohlcv_range
+    page = await self._request_with_retry(_page_call, timeout=timeout)
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 210, in _request_with_retry
+    raise last_exc or ExchangeError("request failed after retries")
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 193, in _request_with_retry
+    return await asyncio.wait_for(coro, timeout=timeout)
+  File "/usr/lib/python3.10/asyncio/tasks.py", line 458, in wait_for
+    raise exceptions.TimeoutError() from exc
+asyncio.exceptions.TimeoutError
+2026-01-06 21:14:05,065 INFO platform.shutdown_started {"timestamp":"2026-01-06T20:14:05.064543"}
+2026-01-06 21:26:49,356 INFO platform.initialized {"environment":"testnet","exchange":"binance","symbol":"BTC/USDT","strategy":"EMATrendStrategy"}
+2026-01-06 21:26:49,357 INFO trading.loop_started {"environment":"testnet","symbol":"BTC/USDT"}
+2026-01-06 21:27:17,965 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 21:28:46,132 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 21:29:48,477 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 21:31:05,584 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 21:32:14,921 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 21:33:52,382 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 21:34:57,534 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 21:36:16,070 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"Insufficient data for EMA calculation","required_candles":201,"available_candles":24}}
+2026-01-06 21:38:21,660 ERROR trading.loop_error
+Traceback (most recent call last):
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 336, in _page_call
+    return await self._client.fetch_ohlcv(symbol, timeframe, since, limit)
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/binance.py", line 4693, in fetch_ohlcv
+    response = await self.publicGetKlines(self.extend(request, params))
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/binance.py", line 11509, in request
+    response = await self.fetch2(path, api, method, params, headers, body, config)
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 886, in fetch2
+    return await self.fetch(request['url'], request['method'], request['headers'], request['body'])
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 212, in fetch
+    async with session_method(yarl.URL(url, encoded=True),
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/client.py", line 1360, in __aenter__
+    self._resp: _RetType = await self._coro
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/client.py", line 663, in _request
+    conn = await self._connector.connect(
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 538, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 1050, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 1335, in _create_direct_connection
+    hosts = await self._resolve_host(host, port, traces=traces)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 964, in _resolve_host
+    await future
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/asyncio/tasks.py", line 456, in wait_for
+    return fut.result()
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/oladan/Trading-Platform/main.py", line 857, in run_trading_loop
+    market_data = await self.market_feed.fetch(
+  File "/home/oladan/Trading-Platform/data/market_feed.py", line 108, in fetch
+    raw_ohlcv = await self._exchange.fetch_ohlcv_range(
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 338, in fetch_ohlcv_range
+    page = await self._request_with_retry(_page_call, timeout=timeout)
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 210, in _request_with_retry
+    raise last_exc or ExchangeError("request failed after retries")
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 193, in _request_with_retry
+    return await asyncio.wait_for(coro, timeout=timeout)
+  File "/usr/lib/python3.10/asyncio/tasks.py", line 458, in wait_for
+    raise exceptions.TimeoutError() from exc
+asyncio.exceptions.TimeoutError
+2026-01-06 21:38:21,662 INFO platform.shutdown_started {"timestamp":"2026-01-06T20:38:21.662675"}
+2026-01-06 21:55:55,883 INFO platform.initialized {"environment":"testnet","exchange":"binance","symbol":"BTC/USDT","strategy":"EMATrendStrategy"}
+2026-01-06 21:55:55,883 INFO trading.loop_started {"environment":"testnet","symbol":"BTC/USDT"}
+2026-01-06 21:56:04,029 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92849.63145829152,"slow_ema":90717.07337916624,"ema_separation_pct":2.3507791859774025,"price":92553.96,"current_trend":"uptrend"}}
+2026-01-06 21:56:26,155 INFO platform.shutdown_started {"timestamp":"2026-01-06T20:56:26.155805"}
+2026-01-06 21:57:04,034 INFO platform.shutdown_started {"timestamp":"2026-01-06T20:57:04.034180"}
+2026-01-06 21:57:54,708 INFO platform.initialized {"environment":"testnet","exchange":"binance","symbol":"BTC/USDT","strategy":"EMATrendStrategy"}
+2026-01-06 21:57:54,709 INFO trading.loop_started {"environment":"testnet","symbol":"BTC/USDT"}
+2026-01-06 21:58:16,350 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92847.84322299741,"slow_ema":90716.61964782295,"ema_separation_pct":2.3493198748456727,"price":92508.36,"current_trend":"uptrend"}}
+2026-01-06 21:59:58,204 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92848.20087005623,"slow_ema":90716.71039409161,"ema_separation_pct":2.3496117382398385,"price":92517.48,"current_trend":"uptrend"}}
+2026-01-06 22:01:02,184 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92835.15181622453,"slow_ema":90734.26737470565,"ema_separation_pct":2.3154255853996695,"price":92515.45,"current_trend":"uptrend"}}
+2026-01-06 22:02:22,124 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92834.94083583237,"slow_ema":90734.21384236735,"ema_separation_pct":2.3152534248157153,"price":92510.07,"current_trend":"uptrend"}}
+2026-01-06 22:04:06,512 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92832.52279661669,"slow_ema":90733.60031002904,"ema_separation_pct":2.31328028361688,"price":92448.41,"current_trend":"uptrend"}}
+2026-01-06 22:05:09,641 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92831.02632602846,"slow_ema":90733.2206085365,"ema_separation_pct":2.3120591371299604,"price":92410.25,"current_trend":"uptrend"}}
+2026-01-06 22:06:30,537 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92831.55338485198,"slow_ema":90733.35433987979,"ema_separation_pct":2.3124892276246163,"price":92423.69,"current_trend":"uptrend"}}
+2026-01-06 22:07:49,950 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92831.68711034217,"slow_ema":90733.38827022804,"ema_separation_pct":2.312598350085687,"price":92427.1,"current_trend":"uptrend"}}
+2026-01-07 08:56:14,259 ERROR trading.loop_error
+Traceback (most recent call last):
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 365, in _page_call
+    return await self._client.fetch_ohlcv(symbol, timeframe, since, limit)
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/binance.py", line 4693, in fetch_ohlcv
+    response = await self.publicGetKlines(self.extend(request, params))
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/binance.py", line 11509, in request
+    response = await self.fetch2(path, api, method, params, headers, body, config)
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 886, in fetch2
+    return await self.fetch(request['url'], request['method'], request['headers'], request['body'])
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 212, in fetch
+    async with session_method(yarl.URL(url, encoded=True),
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/client.py", line 1360, in __aenter__
+    self._resp: _RetType = await self._coro
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/client.py", line 663, in _request
+    conn = await self._connector.connect(
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 538, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 1050, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 1353, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 1116, in _wrap_create_connection
+    return await self._loop.create_connection(*args, **kwargs, sock=sock)
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 1103, in create_connection
+    transport, protocol = await self._create_connection_transport(
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 1133, in _create_connection_transport
+    await waiter
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/asyncio/tasks.py", line 456, in wait_for
+    return fut.result()
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/oladan/Trading-Platform/main.py", line 857, in run_trading_loop
+    market_data = await self.market_feed.fetch(
+  File "/home/oladan/Trading-Platform/data/market_feed.py", line 118, in fetch
+    raw_ohlcv = await self._exchange.fetch_ohlcv_range(
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 367, in fetch_ohlcv_range
+    page = await self._request_with_retry(_page_call, timeout=timeout)
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 199, in _request_with_retry
+    return await asyncio.wait_for(coro, timeout=timeout)
+  File "/usr/lib/python3.10/asyncio/tasks.py", line 458, in wait_for
+    raise exceptions.TimeoutError() from exc
+asyncio.exceptions.TimeoutError
+2026-01-07 08:56:14,262 INFO platform.shutdown_started {"timestamp":"2026-01-07T07:56:14.261838"}
+2026-01-07 11:06:03,339 INFO platform.initialized {"environment":"testnet","exchange":"binance","symbol":"BTC/USDT","strategy":"EMATrendStrategy"}
+2026-01-07 11:06:03,341 INFO trading.loop_started {"environment":"testnet","symbol":"BTC/USDT"}
+2026-01-07 11:06:22,733 ERROR trading.loop_error
+Traceback (most recent call last):
+  File "/home/oladan/Trading-Platform/main.py", line 857, in run_trading_loop
+    market_data = await self.market_feed.fetch(
+  File "/home/oladan/Trading-Platform/data/market_feed.py", line 118, in fetch
+    raw_ohlcv = await self._exchange.fetch_ohlcv_range(
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 367, in fetch_ohlcv_range
+    page = await self._request_with_retry(_page_call, timeout=timeout)
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 239, in _request_with_retry
+    raise last_exc or ExchangeError("request failed after retries")
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 199, in _request_with_retry
+    return await asyncio.wait_for(coro, timeout=timeout)
+  File "/usr/lib/python3.10/asyncio/tasks.py", line 445, in wait_for
+    return fut.result()
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 365, in _page_call
+    return await self._client.fetch_ohlcv(symbol, timeframe, since, limit)
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/binance.py", line 4628, in fetch_ohlcv
+    await self.load_markets()
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 293, in load_markets
+    raise e
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 285, in load_markets
+    result = await self.markets_loading
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 275, in load_markets_helper
+    markets = await self.fetch_markets(params)
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/binance.py", line 3234, in fetch_markets
+    results = await asyncio.gather(*promisesRaw)
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/binance.py", line 11509, in request
+    response = await self.fetch2(path, api, method, params, headers, body, config)
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 895, in fetch2
+    raise e
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 886, in fetch2
+    return await self.fetch(request['url'], request['method'], request['headers'], request['body'])
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 257, in fetch
+    self.handle_http_status_code(http_status_code, http_status_text, url, method, http_response)
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/base/exchange.py", line 1691, in handle_http_status_code
+    raise ErrorClass(self.id + ' ' + method + ' ' + url + ' ' + codeAsString + ' ' + reason + ' ' + body)
+ccxt.base.errors.ExchangeNotAvailable: binance GET https://testnet.binance.vision/api/v3/exchangeInfo 502 Bad Gateway <html>
+<head><title>502 Bad Gateway</title></head>
+<body>
+<center><h1>502 Bad Gateway</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+2026-01-07 11:06:22,739 INFO platform.shutdown_started {"timestamp":"2026-01-07T10:06:22.738936"}
+2026-01-07 11:49:31,301 INFO platform.initialized {"environment":"live","exchange":"binance","symbol":"BTC/USDT","strategy":"EMATrendStrategy"}
+2026-01-07 11:49:31,309 INFO trading.loop_started {"environment":"live","symbol":"BTC/USDT"}
+2026-01-07 11:49:35,773 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92773.1495138501,"slow_ema":90977.03200822616,"ema_separation_pct":1.9742537934866233,"price":91901.95,"current_trend":"uptrend"}}
+2026-01-07 11:50:37,251 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92774.10794522265,"slow_ema":90977.27519230577,"ema_separation_pct":1.9750346986308214,"price":91926.39,"current_trend":"uptrend"}}
+2026-01-07 11:51:38,254 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92773.91618051677,"slow_ema":90977.22653558935,"ema_separation_pct":1.9748784540322017,"price":91921.5,"current_trend":"uptrend"}}
+2026-01-07 11:52:41,990 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92774.14755306579,"slow_ema":90977.28524205701,"ema_separation_pct":1.9750669699892573,"price":91927.4,"current_trend":"uptrend"}}
+2026-01-07 11:53:42,910 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92775.26833737952,"slow_ema":90977.56962016645,"ema_separation_pct":1.975980150622287,"price":91955.98,"current_trend":"uptrend"}}
+2026-01-07 11:54:44,723 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92774.69970992854,"slow_ema":90977.4253415595,"ema_separation_pct":1.9755168511545251,"price":91941.48,"current_trend":"uptrend"}}
+2026-01-07 11:55:45,849 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92773.91578835991,"slow_ema":90977.22643608686,"ema_separation_pct":1.9748781345134323,"price":91921.49,"current_trend":"uptrend"}}
+2026-01-07 11:56:59,504 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92773.91578835991,"slow_ema":90977.22643608686,"ema_separation_pct":1.9748781345134323,"price":91921.49,"current_trend":"uptrend"}}
+2026-01-07 11:58:03,710 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92774.78794522265,"slow_ema":90977.44772961919,"ema_separation_pct":1.9755887425475707,"price":91943.73,"current_trend":"uptrend"}}
+2026-01-07 11:59:05,804 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92776.13421973246,"slow_ema":90977.789321659,"ema_separation_pct":1.9766856410582438,"price":91978.06,"current_trend":"uptrend"}}
+2026-01-07 12:00:11,383 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92744.44612602504,"slow_ema":90985.97850556731,"ema_separation_pct":1.9326797923595755,"price":91970.73,"current_trend":"uptrend"}}
+2026-01-07 12:01:14,367 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92743.7339691623,"slow_ema":90985.79780904991,"ema_separation_pct":1.932099517115564,"price":91952.57,"current_trend":"uptrend"}}
+2026-01-07 12:02:19,498 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92743.84377308386,"slow_ema":90985.82566974642,"ema_separation_pct":1.9321889870171236,"price":91955.37,"current_trend":"uptrend"}}
+2026-01-07 12:03:23,358 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92745.59357700543,"slow_ema":90986.26964984593,"ema_separation_pct":1.9336147464118918,"price":91999.99,"current_trend":"uptrend"}}
+2026-01-07 12:04:26,449 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92747.1908319074,"slow_ema":90986.67492347777,"ema_separation_pct":1.9349161950475418,"price":92040.72,"current_trend":"uptrend"}}
+2026-01-07 12:05:45,662 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92748.67632210348,"slow_ema":90987.05183890065,"ema_separation_pct":1.9361265670217767,"price":92078.6,"current_trend":"uptrend"}}
+2026-01-07 12:06:47,369 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92751.1759299466,"slow_ema":90987.68606775637,"ema_separation_pct":1.9381632157092228,"price":92142.34,"current_trend":"uptrend"}}
+2026-01-07 12:07:48,547 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92750.76887112309,"slow_ema":90987.58278417429,"ema_separation_pct":1.9378315512910589,"price":92131.96,"current_trend":"uptrend"}}
+2026-01-07 12:08:50,986 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92750.82965543681,"slow_ema":90987.59820705985,"ema_separation_pct":1.93788107733582,"price":92133.51,"current_trend":"uptrend"}}
+2026-01-07 12:10:02,128 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92751.37161622112,"slow_ema":90987.73571949766,"ema_separation_pct":1.938322657199093,"price":92147.33,"current_trend":"uptrend"}}
+2026-01-07 12:11:06,456 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92750.18102798583,"slow_ema":90987.43362994543,"ema_separation_pct":1.9373525856434908,"price":92116.97,"current_trend":"uptrend"}}
+2026-01-07 12:12:09,026 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92749.56691033876,"slow_ema":90987.2778090499,"ema_separation_pct":1.9368522102477654,"price":92101.31,"current_trend":"uptrend"}}
+2026-01-07 12:13:13,291 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92750.33004759367,"slow_ema":90987.4714408907,"ema_separation_pct":1.93747400470206,"price":92120.77,"current_trend":"uptrend"}}
+2026-01-07 12:14:14,671 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92750.1496554368,"slow_ema":90987.42566974642,"ema_separation_pct":1.9373270237235667,"price":92116.17,"current_trend":"uptrend"}}
+2026-01-07 12:15:16,150 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92750.63671426034,"slow_ema":90987.54925183597,"ema_separation_pct":1.937723872026147,"price":92128.59,"current_trend":"uptrend"}}
+2026-01-07 12:17:25,098 ERROR trading.loop_error
+Traceback (most recent call last):
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 365, in _page_call
+    return await self._client.fetch_ohlcv(symbol, timeframe, since, limit)
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/binance.py", line 4693, in fetch_ohlcv
+    response = await self.publicGetKlines(self.extend(request, params))
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/binance.py", line 11509, in request
+    response = await self.fetch2(path, api, method, params, headers, body, config)
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 886, in fetch2
+    return await self.fetch(request['url'], request['method'], request['headers'], request['body'])
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 212, in fetch
+    async with session_method(yarl.URL(url, encoded=True),
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/client.py", line 1360, in __aenter__
+    self._resp: _RetType = await self._coro
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/client.py", line 663, in _request
+    conn = await self._connector.connect(
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 538, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 1050, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 1335, in _create_direct_connection
+    hosts = await self._resolve_host(host, port, traces=traces)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 964, in _resolve_host
+    await future
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/asyncio/tasks.py", line 456, in wait_for
+    return fut.result()
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/oladan/Trading-Platform/main.py", line 857, in run_trading_loop
+    market_data = await self.market_feed.fetch(
+  File "/home/oladan/Trading-Platform/data/market_feed.py", line 118, in fetch
+    raw_ohlcv = await self._exchange.fetch_ohlcv_range(
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 367, in fetch_ohlcv_range
+    page = await self._request_with_retry(_page_call, timeout=timeout)
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 199, in _request_with_retry
+    return await asyncio.wait_for(coro, timeout=timeout)
+  File "/usr/lib/python3.10/asyncio/tasks.py", line 458, in wait_for
+    raise exceptions.TimeoutError() from exc
+asyncio.exceptions.TimeoutError
+2026-01-07 12:17:25,296 INFO platform.shutdown_started {"timestamp":"2026-01-07T11:17:25.296000"}
+2026-01-07 12:17:57,223 INFO platform.initialized {"environment":"live","exchange":"binance","symbol":"BTC/USDT","strategy":"EMATrendStrategy"}
+2026-01-07 12:17:57,224 INFO trading.loop_started {"environment":"live","symbol":"BTC/USDT"}
+2026-01-07 12:18:12,614 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92748.44691033877,"slow_ema":90986.99362994543,"ema_separation_pct":1.935939643810381,"price":92072.75,"current_trend":"uptrend"}}
+2026-01-07 12:19:16,419 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92750.61122406425,"slow_ema":90987.54278417428,"ema_separation_pct":1.937703103019319,"price":92127.94,"current_trend":"uptrend"}}
+2026-01-07 12:20:17,799 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92749.75357700544,"slow_ema":90987.32517223398,"ema_separation_pct":1.9370043040998086,"price":92106.07,"current_trend":"uptrend"}}
+2026-01-07 12:21:34,727 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92750.09161622112,"slow_ema":90987.41094337826,"ema_separation_pct":1.9372797341599108,"price":92114.69,"current_trend":"uptrend"}}
+2026-01-07 12:22:48,511 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92751.9896554368,"slow_ema":90987.89253541807,"ema_separation_pct":1.9388262227658908,"price":92163.09,"current_trend":"uptrend"}}
+2026-01-07 12:25:24,129 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92752.08847896622,"slow_ema":90987.91761004493,"ema_separation_pct":1.9389067419722281,"price":92165.61,"current_trend":"uptrend"}}
+2026-01-07 12:26:35,206 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92753.72534171132,"slow_ema":90988.33293342801,"ema_separation_pct":1.9402404147518204,"price":92207.35,"current_trend":"uptrend"}}
+2026-01-07 12:27:54,299 ERROR trading.loop_error
+Traceback (most recent call last):
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/resolver.py", line 105, in resolve
+    resp = await self._resolver.getaddrinfo(
+aiodns.error.DNSError: (11, 'Could not contact DNS servers')
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 1335, in _create_direct_connection
+    hosts = await self._resolve_host(host, port, traces=traces)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 989, in _resolve_host
+    return await asyncio.shield(resolved_host_task)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 1020, in _resolve_host_with_throttle
+    addrs = await self._resolver.resolve(host, port, family=self._family)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/resolver.py", line 114, in resolve
+    raise OSError(None, msg) from exc
+OSError: [Errno None] Could not contact DNS servers
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 212, in fetch
+    async with session_method(yarl.URL(url, encoded=True),
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/client.py", line 1360, in __aenter__
+    self._resp: _RetType = await self._coro
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/client.py", line 663, in _request
+    conn = await self._connector.connect(
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 538, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 1050, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 1341, in _create_direct_connection
+    raise ClientConnectorDNSError(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorDNSError: Cannot connect to host api.binance.com:443 ssl:default [Could not contact DNS servers]
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/oladan/Trading-Platform/main.py", line 857, in run_trading_loop
+    market_data = await self.market_feed.fetch(
+  File "/home/oladan/Trading-Platform/data/market_feed.py", line 118, in fetch
+    raw_ohlcv = await self._exchange.fetch_ohlcv_range(
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 367, in fetch_ohlcv_range
+    page = await self._request_with_retry(_page_call, timeout=timeout)
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 239, in _request_with_retry
+    raise last_exc or ExchangeError("request failed after retries")
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 199, in _request_with_retry
+    return await asyncio.wait_for(coro, timeout=timeout)
+  File "/usr/lib/python3.10/asyncio/tasks.py", line 445, in wait_for
+    return fut.result()
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 365, in _page_call
+    return await self._client.fetch_ohlcv(symbol, timeframe, since, limit)
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/binance.py", line 4693, in fetch_ohlcv
+    response = await self.publicGetKlines(self.extend(request, params))
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/binance.py", line 11509, in request
+    response = await self.fetch2(path, api, method, params, headers, body, config)
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 895, in fetch2
+    raise e
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 886, in fetch2
+    return await self.fetch(request['url'], request['method'], request['headers'], request['body'])
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 250, in fetch
+    raise ExchangeNotAvailable(details) from e
+ccxt.base.errors.ExchangeNotAvailable: binance GET https://api.binance.com/api/v3/klines?interval=1h&limit=500&symbol=BTCUSDT&startTime=1765985255293
+2026-01-07 12:27:54,328 INFO platform.shutdown_started {"timestamp":"2026-01-07T11:27:54.323693"}
+2026-01-07 12:37:22,482 INFO platform.initialized {"environment":"live","exchange":"binance","symbol":"BTC/USDT","strategy":"EMATrendStrategy"}
+2026-01-07 12:37:22,499 INFO trading.loop_started {"environment":"live","symbol":"BTC/USDT"}
+2026-01-07 12:38:04,979 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92754.21436131916,"slow_ema":90988.45701303,"ema_separation_pct":1.9406388527242473,"price":92219.82,"current_trend":"uptrend"}}
+2026-01-07 12:39:08,396 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92754.61357700544,"slow_ema":90988.55830656234,"ema_separation_pct":1.9409641204478016,"price":92230.0,"current_trend":"uptrend"}}
+2026-01-07 12:40:10,221 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92754.51906720152,"slow_ema":90988.53432646283,"ema_separation_pct":1.9408871170541215,"price":92227.59,"current_trend":"uptrend"}}
+2026-01-07 12:41:13,939 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92754.65514563289,"slow_ema":90988.56885382603,"ema_separation_pct":1.9409979891475089,"price":92231.06,"current_trend":"uptrend"}}
+2026-01-07 12:42:18,109 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92755.34102798582,"slow_ema":90988.74288367676,"ema_separation_pct":1.9415568215592764,"price":92248.55,"current_trend":"uptrend"}}
+2026-01-07 12:43:21,809 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92754.30142014268,"slow_ema":90988.47910258223,"ema_separation_pct":1.9407097854329747,"price":92222.04,"current_trend":"uptrend"}}
+2026-01-07 12:44:23,844 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92753.73122406426,"slow_ema":90988.33442596532,"ema_separation_pct":1.9402452075165684,"price":92207.5,"current_trend":"uptrend"}}
+2026-01-07 12:45:33,625 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92753.06691033876,"slow_ema":90988.1658687514,"ema_separation_pct":1.939703943624051,"price":92190.56,"current_trend":"uptrend"}}
+2026-01-07 12:46:38,002 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92752.16181229956,"slow_ema":90987.93621701011,"ema_separation_pct":1.9389664923069527,"price":92167.48,"current_trend":"uptrend"}}
+2026-01-07 12:47:48,203 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92752.5339691623,"slow_ema":90988.0306448708,"ema_separation_pct":1.9392697168910134,"price":92176.97,"current_trend":"uptrend"}}
+2026-01-07 12:48:50,975 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92752.15475347602,"slow_ema":90987.93442596533,"ema_separation_pct":1.9389607409388887,"price":92167.3,"current_trend":"uptrend"}}
+2026-01-07 12:49:57,269 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92750.77945935838,"slow_ema":90987.58547074144,"ema_separation_pct":1.9378401784097528,"price":92132.23,"current_trend":"uptrend"}}
+2026-01-07 12:50:59,012 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92750.98024367211,"slow_ema":90987.63641601507,"ema_separation_pct":1.9380037740453548,"price":92137.35,"current_trend":"uptrend"}}
+2026-01-07 12:52:03,498 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92752.28220445642,"slow_ema":90987.96676427378,"ema_separation_pct":1.9390645850495052,"price":92170.55,"current_trend":"uptrend"}}
+2026-01-07 12:53:06,600 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92752.6939691623,"slow_ema":90988.07124188573,"ema_separation_pct":1.9394000809022933,"price":92181.05,"current_trend":"uptrend"}}
+2026-01-07 12:54:08,022 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92752.69436131915,"slow_ema":90988.0713413882,"ema_separation_pct":1.9394004004217937,"price":92181.06,"current_trend":"uptrend"}}
+2026-01-07 12:55:10,187 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92751.34573386818,"slow_ema":90987.72915233349,"ema_separation_pct":1.9383015687555054,"price":92146.67,"current_trend":"uptrend"}}
+2026-01-07 12:56:16,135 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92753.18455739759,"slow_ema":90988.19571949766,"ema_separation_pct":1.939799799241118,"price":92193.56,"current_trend":"uptrend"}}
+2026-01-07 12:57:30,331 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92751.52259661329,"slow_ema":90987.77402795537,"ema_separation_pct":1.9384456730593465,"price":92151.18,"current_trend":"uptrend"}}
+2026-01-07 12:58:39,825 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92750.16377308387,"slow_ema":90987.42925183597,"ema_separation_pct":1.9373385265880876,"price":92116.53,"current_trend":"uptrend"}}
+2026-01-07 13:00:46,673 ERROR trading.loop_error
+Traceback (most recent call last):
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 365, in _page_call
+    return await self._client.fetch_ohlcv(symbol, timeframe, since, limit)
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/binance.py", line 4693, in fetch_ohlcv
+    response = await self.publicGetKlines(self.extend(request, params))
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/binance.py", line 11509, in request
+    response = await self.fetch2(path, api, method, params, headers, body, config)
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 886, in fetch2
+    return await self.fetch(request['url'], request['method'], request['headers'], request['body'])
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 212, in fetch
+    async with session_method(yarl.URL(url, encoded=True),
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/client.py", line 1360, in __aenter__
+    self._resp: _RetType = await self._coro
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/client.py", line 663, in _request
+    conn = await self._connector.connect(
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 538, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 1050, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 1335, in _create_direct_connection
+    hosts = await self._resolve_host(host, port, traces=traces)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 964, in _resolve_host
+    await future
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/asyncio/tasks.py", line 456, in wait_for
+    return fut.result()
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/oladan/Trading-Platform/main.py", line 857, in run_trading_loop
+    market_data = await self.market_feed.fetch(
+  File "/home/oladan/Trading-Platform/data/market_feed.py", line 118, in fetch
+    raw_ohlcv = await self._exchange.fetch_ohlcv_range(
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 367, in fetch_ohlcv_range
+    page = await self._request_with_retry(_page_call, timeout=timeout)
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 199, in _request_with_retry
+    return await asyncio.wait_for(coro, timeout=timeout)
+  File "/usr/lib/python3.10/asyncio/tasks.py", line 458, in wait_for
+    raise exceptions.TimeoutError() from exc
+asyncio.exceptions.TimeoutError
+2026-01-07 13:00:46,700 INFO platform.shutdown_started {"timestamp":"2026-01-07T12:00:46.693910"}
+2026-01-07 13:23:07,619 INFO platform.initialized {"environment":"live","exchange":"binance","symbol":"BTC/USDT","strategy":"EMATrendStrategy"}
+2026-01-07 13:23:07,628 INFO trading.loop_started {"environment":"live","symbol":"BTC/USDT"}
+2026-01-07 13:23:20,299 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92722.86557706482,"slow_ema":90994.26497009839,"ema_separation_pct":1.8996808288241729,"price":92082.23,"current_trend":"uptrend"}}
+2026-01-07 13:24:23,427 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92723.39577314326,"slow_ema":90994.39949746158,"ema_separation_pct":1.900112847857098,"price":92095.75,"current_trend":"uptrend"}}
+2026-01-07 13:25:27,794 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92721.88910647659,"slow_ema":90994.01720890436,"ema_separation_pct":1.8988851691264224,"price":92057.33,"current_trend":"uptrend"}}
+2026-01-07 13:26:30,095 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92720.88557706482,"slow_ema":90993.76258203869,"ema_separation_pct":1.8980674565127291,"price":92031.74,"current_trend":"uptrend"}}
+2026-01-07 13:28:08,216 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92722.30714569228,"slow_ema":90994.1232785561,"ema_separation_pct":1.899225801479253,"price":92067.99,"current_trend":"uptrend"}}
+2026-01-07 13:29:10,862 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92722.44322412365,"slow_ema":90994.15780591928,"ema_separation_pct":1.8993366825709983,"price":92071.46,"current_trend":"uptrend"}}
+2026-01-07 13:30:13,488 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92722.09185157463,"slow_ema":90994.06865169044,"ema_separation_pct":1.899050372721288,"price":92062.5,"current_trend":"uptrend"}}
+2026-01-07 13:31:15,703 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92722.71263588835,"slow_ema":90994.22616412824,"ema_separation_pct":1.899556207711913,"price":92078.33,"current_trend":"uptrend"}}
+2026-01-07 13:32:19,583 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92723.39616530012,"slow_ema":90994.39959696407,"ema_separation_pct":1.900113167397322,"price":92095.76,"current_trend":"uptrend"}}
+2026-01-07 13:33:21,520 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92723.05067510404,"slow_ema":90994.31193527252,"ema_separation_pct":1.8998316521819867,"price":92086.95,"current_trend":"uptrend"}}
+2026-01-07 13:34:25,583 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92722.14243980992,"slow_ema":90994.08148751133,"ema_separation_pct":1.8990915937052038,"price":92063.79,"current_trend":"uptrend"}}
+2026-01-07 13:35:56,239 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92721.22400843738,"slow_ema":90993.84845268546,"ema_separation_pct":1.8983432233335096,"price":92040.37,"current_trend":"uptrend"}}
+2026-01-07 13:37:02,128 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92721.12949863345,"slow_ema":90993.82447258595,"ema_separation_pct":1.89826621318449,"price":92037.96,"current_trend":"uptrend"}}
+2026-01-07 13:38:07,152 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92721.12949863345,"slow_ema":90993.82447258595,"ema_separation_pct":1.89826621318449,"price":92037.96,"current_trend":"uptrend"}}
+2026-01-07 13:39:09,921 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92720.25930255502,"slow_ema":90993.60367656605,"ema_separation_pct":1.8975571427265439,"price":92015.77,"current_trend":"uptrend"}}
+2026-01-07 13:40:11,024 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92720.96008686874,"slow_ema":90993.78148751133,"ema_separation_pct":1.8981281699941954,"price":92033.64,"current_trend":"uptrend"}}
+2026-01-07 13:41:14,448 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92719.93459667267,"slow_ema":90993.52128850635,"ema_separation_pct":1.8972925585465663,"price":92007.49,"current_trend":"uptrend"}}
+2026-01-07 13:42:16,115 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92719.32596922168,"slow_ema":90993.36686064566,"ema_separation_pct":1.8967966216914327,"price":91991.97,"current_trend":"uptrend"}}
+2026-01-07 13:43:18,088 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92719.5867535354,"slow_ema":90993.43302979988,"ema_separation_pct":1.897009120614469,"price":91998.62,"current_trend":"uptrend"}}
+2026-01-07 13:44:21,498 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92720.29459667267,"slow_ema":90993.61263178993,"ema_separation_pct":1.8975859018476815,"price":92016.67,"current_trend":"uptrend"}}
+2026-01-07 13:45:27,549 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92720.5510672609,"slow_ema":90993.6777064168,"ema_separation_pct":1.8977948846245156,"price":92023.21,"current_trend":"uptrend"}}
+2026-01-07 13:46:33,399 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92721.49028294717,"slow_ema":90993.91601487451,"ema_separation_pct":1.8985601936180576,"price":92047.16,"current_trend":"uptrend"}}
+2026-01-07 13:47:40,464 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92720.84989079031,"slow_ema":90993.75352731232,"ema_separation_pct":1.8980383779416163,"price":92030.83,"current_trend":"uptrend"}}
+2026-01-07 13:48:57,076 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92721.39812608443,"slow_ema":90993.89263178993,"ema_separation_pct":1.8984851008461767,"price":92044.81,"current_trend":"uptrend"}}
+2026-01-07 13:50:06,212 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92721.84283196679,"slow_ema":90994.00546761083,"ema_separation_pct":1.8988474630573131,"price":92056.15,"current_trend":"uptrend"}}
+2026-01-07 13:51:08,011 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92721.84283196679,"slow_ema":90994.00546761083,"ema_separation_pct":1.8988474630573131,"price":92056.15,"current_trend":"uptrend"}}
+2026-01-07 13:52:12,609 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92721.94636137855,"slow_ema":90994.03173626754,"ema_separation_pct":1.8989318223849079,"price":92058.79,"current_trend":"uptrend"}}
+2026-01-07 13:54:25,926 ERROR trading.loop_error
+Traceback (most recent call last):
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 365, in _page_call
+    return await self._client.fetch_ohlcv(symbol, timeframe, since, limit)
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/binance.py", line 4693, in fetch_ohlcv
+    response = await self.publicGetKlines(self.extend(request, params))
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/binance.py", line 11509, in request
+    response = await self.fetch2(path, api, method, params, headers, body, config)
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 886, in fetch2
+    return await self.fetch(request['url'], request['method'], request['headers'], request['body'])
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 212, in fetch
+    async with session_method(yarl.URL(url, encoded=True),
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/client.py", line 1360, in __aenter__
+    self._resp: _RetType = await self._coro
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/client.py", line 663, in _request
+    conn = await self._connector.connect(
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 538, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 1050, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 1335, in _create_direct_connection
+    hosts = await self._resolve_host(host, port, traces=traces)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 964, in _resolve_host
+    await future
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/asyncio/tasks.py", line 456, in wait_for
+    return fut.result()
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/oladan/Trading-Platform/main.py", line 857, in run_trading_loop
+    market_data = await self.market_feed.fetch(
+  File "/home/oladan/Trading-Platform/data/market_feed.py", line 118, in fetch
+    raw_ohlcv = await self._exchange.fetch_ohlcv_range(
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 367, in fetch_ohlcv_range
+    page = await self._request_with_retry(_page_call, timeout=timeout)
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 199, in _request_with_retry
+    return await asyncio.wait_for(coro, timeout=timeout)
+  File "/usr/lib/python3.10/asyncio/tasks.py", line 458, in wait_for
+    raise exceptions.TimeoutError() from exc
+asyncio.exceptions.TimeoutError
+2026-01-07 13:54:25,937 INFO platform.shutdown_started {"timestamp":"2026-01-07T12:54:25.937218"}
+2026-01-07 14:02:00,489 INFO platform.initialized {"environment":"live","exchange":"binance","symbol":"BTC/USDT","strategy":"EMATrendStrategy"}
+2026-01-07 14:02:00,535 INFO trading.loop_started {"environment":"live","symbol":"BTC/USDT"}
+2026-01-07 14:02:59,938 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92691.18216604697,"slow_ema":90999.37288295216,"ema_separation_pct":1.8591438924209984,"price":91996.0,"current_trend":"uptrend"}}
+2026-01-07 14:04:02,259 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92691.68451898814,"slow_ema":90999.50034563872,"ema_separation_pct":1.8595532578993137,"price":92008.81,"current_trend":"uptrend"}}
+2026-01-07 14:05:11,096 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92693.19746016462,"slow_ema":90999.88422623574,"ema_separation_pct":1.8607861409132374,"price":92047.39,"current_trend":"uptrend"}}
+2026-01-07 14:06:14,547 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92692.58020526265,"slow_ema":90999.72760932031,"ema_separation_pct":1.8602831463519216,"price":92031.65,"current_trend":"uptrend"}}
+2026-01-07 14:07:24,938 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92688.3598131058,"slow_ema":90998.65676354917,"ema_separation_pct":1.8568439465509383,"price":91924.03,"current_trend":"uptrend"}}
+2026-01-07 14:08:27,444 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92688.4786366352,"slow_ema":90998.6869128029,"ema_separation_pct":1.8569407770152744,"price":91927.06,"current_trend":"uptrend"}}
+2026-01-07 14:09:28,959 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92688.35275428227,"slow_ema":90998.65497250439,"ema_separation_pct":1.8568381942441143,"price":91923.85,"current_trend":"uptrend"}}
+2026-01-07 14:10:32,567 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92688.22098957638,"slow_ema":90998.62153966857,"ema_separation_pct":1.8567308178083437,"price":91920.49,"current_trend":"uptrend"}}
+2026-01-07 14:11:53,394 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92690.58647977246,"slow_ema":90999.22173867354,"ema_separation_pct":1.8586584684823875,"price":91980.81,"current_trend":"uptrend"}}
+2026-01-07 14:13:12,785 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92688.68138173324,"slow_ema":90998.73835558897,"ema_separation_pct":1.8571059958442628,"price":91932.23,"current_trend":"uptrend"}}
+2026-01-07 14:14:15,015 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92687.54844055677,"slow_ema":90998.4508929024,"ema_separation_pct":1.856182749355036,"price":91903.34,"current_trend":"uptrend"}}
+2026-01-07 14:15:44,536 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92688.44451898815,"slow_ema":90998.67825608648,"ema_separation_pct":1.85691297421526,"price":91926.19,"current_trend":"uptrend"}}
+2026-01-07 14:16:47,828 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92689.0029503607,"slow_ema":90998.81994762877,"ema_separation_pct":1.8573680446676664,"price":91940.43,"current_trend":"uptrend"}}
+2026-01-07 14:17:49,908 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92689.61942094893,"slow_ema":90998.97636553922,"ema_separation_pct":1.8578704101224963,"price":91956.15,"current_trend":"uptrend"}}
+2026-01-07 14:18:53,838 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92689.61942094893,"slow_ema":90998.97636553922,"ema_separation_pct":1.8578704101224963,"price":91956.15,"current_trend":"uptrend"}}
+2026-01-07 14:20:00,618 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92690.82647977246,"slow_ema":90999.28263419593,"ema_separation_pct":1.8588540443514143,"price":91986.93,"current_trend":"uptrend"}}
+2026-01-07 14:21:07,545 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92695.25981310579,"slow_ema":91000.40750981783,"ema_separation_pct":1.8624667181903625,"price":92099.98,"current_trend":"uptrend"}}
+2026-01-07 14:22:36,072 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92695.96491114501,"slow_ema":91000.58641529047,"ema_separation_pct":1.863041286478651,"price":92117.96,"current_trend":"uptrend"}}
+2026-01-07 14:25:03,430 INFO platform.initialized {"environment":"live","exchange":"binance","symbol":"BTC/USDT","strategy":"EMATrendStrategy"}
+2026-01-07 14:25:03,441 INFO trading.loop_started {"environment":"live","symbol":"BTC/USDT"}
+2026-01-07 14:26:09,753 ERROR trading.loop_error
+Traceback (most recent call last):
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 886, in fetch2
+    return await self.fetch(request['url'], request['method'], request['headers'], request['body'])
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 217, in fetch
+    http_response = await response.text(errors='replace')
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/client_reqrep.py", line 1257, in text
+    await self.read()
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/client_reqrep.py", line 1215, in read
+    self._body = await self.content.read()
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/streams.py", line 387, in read
+    block = await self.readany()
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/streams.py", line 409, in readany
+    await self._wait("readany")
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/streams.py", line 316, in _wait
+    await waiter
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 275, in load_markets_helper
+    markets = await self.fetch_markets(params)
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/binance.py", line 3234, in fetch_markets
+    results = await asyncio.gather(*promisesRaw)
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 365, in _page_call
+    return await self._client.fetch_ohlcv(symbol, timeframe, since, limit)
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/binance.py", line 4628, in fetch_ohlcv
+    await self.load_markets()
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 289, in load_markets
+    raise e
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 285, in load_markets
+    result = await self.markets_loading
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/asyncio/tasks.py", line 456, in wait_for
+    return fut.result()
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/oladan/Trading-Platform/main.py", line 857, in run_trading_loop
+    market_data = await self.market_feed.fetch(
+  File "/home/oladan/Trading-Platform/data/market_feed.py", line 118, in fetch
+    raw_ohlcv = await self._exchange.fetch_ohlcv_range(
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 367, in fetch_ohlcv_range
+    page = await self._request_with_retry(_page_call, timeout=timeout)
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 199, in _request_with_retry
+    return await asyncio.wait_for(coro, timeout=timeout)
+  File "/usr/lib/python3.10/asyncio/tasks.py", line 458, in wait_for
+    raise exceptions.TimeoutError() from exc
+asyncio.exceptions.TimeoutError
+2026-01-07 14:26:09,919 INFO platform.shutdown_started {"timestamp":"2026-01-07T13:26:09.861322"}
+2026-01-07 14:42:15,622 INFO platform.initialized {"environment":"live","exchange":"binance","symbol":"BTC/USDT","strategy":"EMATrendStrategy"}
+2026-01-07 14:42:15,678 INFO trading.loop_started {"environment":"live","symbol":"BTC/USDT"}
+2026-01-07 14:42:23,506 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92696.82098957639,"slow_ema":91000.80362922081,"ema_separation_pct":1.8637388822036451,"price":92139.79,"current_trend":"uptrend"}}
+2026-01-07 14:43:40,339 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92697.2629503607,"slow_ema":91000.9157685243,"ema_separation_pct":1.8640990230816372,"price":92151.06,"current_trend":"uptrend"}}
+2026-01-07 14:45:00,149 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92697.30687192932,"slow_ema":91000.9269128029,"ema_separation_pct":1.8641348134309628,"price":92152.18,"current_trend":"uptrend"}}
+2026-01-07 14:46:39,893 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92694.79079349796,"slow_ema":91000.2885048427,"ema_separation_pct":1.8620845235727868,"price":92088.02,"current_trend":"uptrend"}}
+2026-01-07 14:47:45,203 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92694.19157781168,"slow_ema":91000.13646504171,"ema_separation_pct":1.8615962333427434,"price":92072.74,"current_trend":"uptrend"}}
+2026-01-07 14:48:47,417 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92696.74020526266,"slow_ema":91000.78313170838,"ema_separation_pct":1.8636730533402848,"price":92137.73,"current_trend":"uptrend"}}
+2026-01-07 14:49:49,180 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92697.03314643913,"slow_ema":91000.85746006659,"ema_separation_pct":1.8639117627181363,"price":92145.2,"current_trend":"uptrend"}}
+2026-01-07 14:50:50,903 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92693.5166758509,"slow_ema":90999.96522126062,"ema_separation_pct":1.8610462657568296,"price":92055.53,"current_trend":"uptrend"}}
+2026-01-07 14:51:52,635 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92695.44255820384,"slow_ema":91000.45387797704,"ema_separation_pct":1.8626156332138957,"price":92104.64,"current_trend":"uptrend"}}
+2026-01-07 14:52:54,730 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92695.4429503607,"slow_ema":91000.45397747951,"ema_separation_pct":1.8626159527738766,"price":92104.65,"current_trend":"uptrend"}}
+2026-01-07 14:53:57,129 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92695.14177389011,"slow_ema":91000.37755956907,"ema_separation_pct":1.8623705305086706,"price":92096.97,"current_trend":"uptrend"}}
+2026-01-07 14:54:59,475 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92693.92726408619,"slow_ema":91000.06940036509,"ema_separation_pct":1.8613808482593392,"price":92066.0,"current_trend":"uptrend"}}
+2026-01-07 14:56:07,610 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92693.69000918423,"slow_ema":91000.00920136011,"ema_separation_pct":1.8611875127137916,"price":92059.95,"current_trend":"uptrend"}}
+2026-01-07 14:57:10,981 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92694.05118565481,"slow_ema":91000.10084315116,"ema_separation_pct":1.8614818300293594,"price":92069.16,"current_trend":"uptrend"}}
+2026-01-07 14:58:24,861 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92694.03118565482,"slow_ema":91000.09576852429,"ema_separation_pct":1.8614655323433635,"price":92068.65,"current_trend":"uptrend"}}
+2026-01-07 14:59:27,577 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92693.09079349795,"slow_ema":90999.85716155912,"ema_separation_pct":1.860699219486353,"price":92044.67,"current_trend":"uptrend"}}
+2026-01-07 15:00:29,439 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92667.96488041665,"slow_ema":91011.60553322156,"ema_separation_pct":1.8199430034123225,"price":92052.38,"current_trend":"uptrend"}}
+2026-01-07 15:01:36,714 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92663.83625296566,"slow_ema":91010.55797103251,"ema_separation_pct":1.8165785583463459,"price":91947.1,"current_trend":"uptrend"}}
+2026-01-07 15:02:41,888 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92660.03429218134,"slow_ema":91009.5932944156,"ema_separation_pct":1.813480247545531,"price":91850.15,"current_trend":"uptrend"}}
+2026-01-07 15:04:49,644 ERROR trading.loop_error
+Traceback (most recent call last):
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 365, in _page_call
+    return await self._client.fetch_ohlcv(symbol, timeframe, since, limit)
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/binance.py", line 4693, in fetch_ohlcv
+    response = await self.publicGetKlines(self.extend(request, params))
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/binance.py", line 11509, in request
+    response = await self.fetch2(path, api, method, params, headers, body, config)
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 886, in fetch2
+    return await self.fetch(request['url'], request['method'], request['headers'], request['body'])
+  File "/home/oladan/.local/lib/python3.10/site-packages/ccxt/async_support/base/exchange.py", line 212, in fetch
+    async with session_method(yarl.URL(url, encoded=True),
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/client.py", line 1360, in __aenter__
+    self._resp: _RetType = await self._coro
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/client.py", line 663, in _request
+    conn = await self._connector.connect(
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 538, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 1050, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 1335, in _create_direct_connection
+    hosts = await self._resolve_host(host, port, traces=traces)
+  File "/home/oladan/.local/lib/python3.10/site-packages/aiohttp/connector.py", line 964, in _resolve_host
+    await future
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/asyncio/tasks.py", line 456, in wait_for
+    return fut.result()
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/oladan/Trading-Platform/main.py", line 857, in run_trading_loop
+    market_data = await self.market_feed.fetch(
+  File "/home/oladan/Trading-Platform/data/market_feed.py", line 118, in fetch
+    raw_ohlcv = await self._exchange.fetch_ohlcv_range(
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 367, in fetch_ohlcv_range
+    page = await self._request_with_retry(_page_call, timeout=timeout)
+  File "/home/oladan/Trading-Platform/data/exchange.py", line 199, in _request_with_retry
+    return await asyncio.wait_for(coro, timeout=timeout)
+  File "/usr/lib/python3.10/asyncio/tasks.py", line 458, in wait_for
+    raise exceptions.TimeoutError() from exc
+asyncio.exceptions.TimeoutError
+2026-01-07 15:04:49,663 INFO platform.shutdown_started {"timestamp":"2026-01-07T14:04:49.659438"}
+2026-01-07 16:37:23,373 INFO platform.initialized {"environment":"live","exchange":"binance","symbol":"BTC/USDT","strategy":"EMATrendStrategy"}
+2026-01-07 16:37:23,377 INFO trading.loop_started {"environment":"live","symbol":"BTC/USDT"}
+2026-01-07 16:37:35,699 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92613.70431198778,"slow_ema":91013.43389165304,"ema_separation_pct":1.758279357132905,"price":91374.0,"current_trend":"uptrend"}}
+2026-01-07 16:38:45,527 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92613.14901787012,"slow_ema":91013.29299613065,"ema_separation_pct":1.7578267625230155,"price":91359.84,"current_trend":"uptrend"}}
+2026-01-07 16:39:52,263 INFO strategy.signal_generated {"signal":"HOLD","confidence":0.0,"metadata":{"reason":"No EMA crossover","fast_ema":92609.10744924267,"slow_ema":91012.26752349384,"ema_separation_pct":1.754532624227418,"price":91256.78,"current_trend":"uptrend"}}

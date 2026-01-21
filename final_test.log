@@ -1,0 +1,124 @@
+2026-01-07 23:14:34,005 - __main__ - INFO - ================================================================================
+2026-01-07 23:14:34,007 - __main__ - INFO - TRADING PLATFORM INITIALIZATION
+2026-01-07 23:14:34,007 - __main__ - INFO - ================================================================================
+2026-01-07 23:14:34,007 - __main__ - INFO - Loading configuration from LIVE_DATA_CONFIG.yaml
+2026-01-07 23:14:34,032 - __main__ - INFO - Configuration loaded successfully
+2026-01-07 23:14:34,032 - __main__ - INFO - [1/6] Initializing Core Module (Environment & State)
+2026-01-07 23:14:34,032 - __main__ - INFO -    ✓ TradingState initialized: paper
+2026-01-07 23:14:34,033 - core.environment - WARNING - Environment file not found: .env
+2026-01-07 23:14:34,033 - __main__ - INFO -    ✓ EnvironmentManager initialized
+2026-01-07 23:14:34,033 - __main__ - INFO - [2/6] Initializing Monitoring Module (Logger & Metrics)
+2026-01-07 23:14:34,033 - __main__ - INFO -    ✓ LoggerManager configured
+2026-01-07 23:14:34,034 - __main__ - INFO -    ✓ MetricsCollector initialized
+2026-01-07 23:14:34,034 - __main__ - INFO - [3/6] Initializing Data Module (Exchange & Market Feed)
+2026-01-07 23:14:34,089 - __main__ - INFO -    ✓ ExchangeConnector connected: binance (paper)
+2026-01-07 23:14:34,089 - data.market_feed - INFO - MarketFeed initialized with exchange: binance
+2026-01-07 23:14:34,090 - __main__ - INFO -    ✓ MarketFeed initialized
+2026-01-07 23:14:34,090 - __main__ - INFO - [4/6] Initializing Strategy Module (Signal Generation)
+2026-01-07 23:14:34,090 - __main__ - WARNING - [Strategy] Unknown strategy in multi_strategy: EMATrendStrategy
+2026-01-07 23:14:34,090 - strategies.base - INFO - Strategy 'ContinuationStrategy' initialized with parameters: {'lookback': 50, 'min_impulse_pct': 1.2, 'min_retracement': 0.15, 'max_retracement': 0.75, 'min_consolidation_candles': 3, 'max_consolidation_candles': 35, 'volume_surge_threshold': 1.1}
+2026-01-07 23:14:34,090 - strategies.base - INFO - Strategy 'FVGStrategy' initialized with parameters: {'lookback': 100, 'min_gap_size_pct': 0.2, 'max_gap_age': 150, 'require_volume_spike': False, 'volume_spike_multiplier': 1.5, 'require_momentum': False, 'min_fill_pct': 0.2, 'max_fill_pct': 0.98}
+2026-01-07 23:14:34,090 - strategies.base - INFO - Strategy 'MultiStrategyAggregator' initialized with parameters: {}
+2026-01-07 23:14:34,090 - strategies.base - INFO - Strategy 'RegimeBasedStrategy' initialized with parameters: {'regime_confidence_threshold': 0.5, 'reduce_confidence_in_marginal_regimes': True}
+2026-01-07 23:14:34,090 - strategies.regime_detector - INFO - RegimeDetector initialized with lookback=100, vol_thresholds=(0.010, 0.030)
+2026-01-07 23:14:34,091 - strategies.regime_strategy - INFO - RegimeBasedStrategy initialized: underlying=MultiStrategyAggregator, allowed_regimes=['trending', 'quiet', 'volatile'], confidence_threshold=0.5, volatile_override=False, readiness_gate=False, readiness_scaling=False [0.50-1.00], mode=live
+2026-01-07 23:14:34,091 - __main__ - INFO -    ✓ Strategy initialized: RegimeBasedStrategy
+2026-01-07 23:14:34,091 - __main__ - INFO - [5/10] Initializing Risk Module (Position Sizing & Drawdown Guard)
+2026-01-07 23:14:34,092 - risk.position_sizing - INFO - PositionSizer initialized: equity=$1000.00, risk=2.00%, method=fixed_fractional
+2026-01-07 23:14:34,092 - __main__ - INFO -    ✓ PositionSizer initialized: fixed_fractional
+2026-01-07 23:14:34,092 - risk.drawdown_guard - INFO - DrawdownGuard initialized: equity=$1000.00, max_daily_dd=5.0%, max_total_dd=20.0%
+2026-01-07 23:14:34,092 - __main__ - INFO -    ✓ DrawdownGuard initialized
+2026-01-07 23:14:34,092 - __main__ - INFO - [6/10] Initializing Portfolio Risk Module (Correlation & Exposure Control)
+2026-01-07 23:14:34,092 - __main__ - INFO -    ✓ PortfolioRiskManager disabled (set portfolio_risk.enabled=True to enable)
+2026-01-07 23:14:34,092 - __main__ - INFO - [7/10] Initializing Regime Capital Module (Capital Allocation)
+2026-01-07 23:14:34,092 - __main__ - INFO -    ✓ RegimeCapitalAllocator disabled (set regime_capital.enabled=True to enable)
+2026-01-07 23:14:34,093 - __main__ - INFO - [8/10] Initializing Execution Module (Broker & Order Manager)
+2026-01-07 23:14:34,093 - execution.broker - INFO - PaperBroker initialized: mode=paper, slippage=5.0bps, fees=10.0bps
+2026-01-07 23:14:34,104 - execution.broker - INFO - Broker initialized: mode=paper, initial_cash=$1,000.00
+2026-01-07 23:14:34,104 - __main__ - INFO -    ✓ Broker initialized: paper
+2026-01-07 23:14:34,104 - execution.order_manager - INFO - OrderManager initialized: max_concurrent=5, max_attempts=3
+2026-01-07 23:14:34,105 - __main__ - INFO -    ✓ OrderManager initialized
+2026-01-07 23:14:34,105 - __main__ - INFO - [9/10] Initializing Execution Reality Module (Market Impact)
+2026-01-07 23:14:34,105 - execution.execution_reality_engine - INFO - [EXECUTION_REALITY] Engine initialized: enabled=False, model=conservative, min_fill_prob=60.0%
+2026-01-07 23:14:34,105 - __main__ - INFO -    ✓ Execution Reality disabled (set execution_reality.enabled=True to enable)
+2026-01-07 23:14:34,105 - __main__ - INFO - [10/10] Initializing Optimization Module (Performance Enhancement)
+2026-01-07 23:14:34,105 - __main__ - INFO -    ✓ Optimization disabled (set optimization.enabled=True to enable)
+2026-01-07 23:14:34,105 - __main__ - INFO - ================================================================================
+2026-01-07 23:14:34,105 - __main__ - INFO - PLATFORM INITIALIZATION COMPLETE
+2026-01-07 23:14:34,105 - __main__ - INFO - ================================================================================
+2026-01-07 23:14:34,105 INFO platform.initialized {"environment":"paper","exchange":"binance","symbol":"BTC/USDT","strategy":"RegimeBasedStrategy"}
+2026-01-07 23:14:34,106 - __main__ - INFO - ================================================================================
+2026-01-07 23:14:34,106 - __main__ - INFO - STARTING TRADING LOOP
+2026-01-07 23:14:34,106 - __main__ - INFO - ================================================================================
+2026-01-07 23:14:34,106 INFO trading.loop_started {"environment":"paper","symbol":"BTC/USDT"}
+2026-01-07 23:14:34,106 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-01-07 23:14:34,106 - __main__ - INFO - Trading Loop Iteration - 2026-01-07T22:14:34.106684
+2026-01-07 23:14:34,106 - __main__ - INFO - [DATA] Fetching BTC/USDT 1h data
+2026-01-07 23:14:34,133 - data.exchange - INFO - Generated 500 synthetic 1h candles for BTC/USDT ($42195.54 → $19697.82)
+2026-01-07 23:14:34,156 - data.market_feed - INFO - Fetched 500 candles for BTC/USDT 1h (2025-12-18 02:14:34.107000+00:00 to 2026-01-07 21:14:34.107000+00:00)
+2026-01-07 23:14:34,156 - __main__ - INFO - [DATA] Received 500 candles
+2026-01-07 23:14:34,156 - __main__ - INFO - [STRATEGY] Generating signal using RegimeBasedStrategy
+2026-01-07 23:14:34,158 - strategies.regime_strategy - INFO - [RegimeDetector] Regime: volatile, Confidence: 0.93
+2026-01-07 23:14:34,158 - strategies.regime_strategy - INFO - [RegimeFilter] Regime volatile is favorable - delegating to MultiStrategyAggregator
+2026-01-07 23:14:34,165 - strategies.multi_strategy_aggregator - INFO - [MultiStrategy] strat=ContinuationStrategy action=hold conf=0.000
+2026-01-07 23:14:34,232 - strategies.pattern_strategies - INFO - [FVG] bearish_fvg: gap_size=1.31% filled=89.5% conf=0.800
+2026-01-07 23:14:34,233 - strategies.multi_strategy_aggregator - INFO - [MultiStrategy] strat=FVGStrategy action=sell conf=0.800
+2026-01-07 23:14:34,233 - strategies.multi_strategy_aggregator - INFO - [MultiStrategy] final=sell 0.343 | contributions=[{'strategy': 'ContinuationStrategy', 'action': 'hold', 'confidence': 0.0, 'weight': 0.4}, {'strategy': 'FVGStrategy', 'action': 'sell', 'confidence': 0.8, 'weight': 0.3}]
+2026-01-07 23:14:34,233 - strategies.regime_strategy - INFO - [ConfidenceAdjustment] Scaled from 0.34 to 0.32 based on regime confidence
+2026-01-07 23:14:34,233 - __main__ - INFO - [STRATEGY] Signal: SELL (confidence: 0.32) | Regime: volatile (conf: 0.93)
+2026-01-07 23:14:34,234 INFO strategy.signal_generated {"signal":"SELL","confidence":0.318401969806884,"metadata":{"regime":"volatile","regime_confidence":0.9286724119367451,"regime_metrics":{"volatility":0.29039642825067863,"trend_strength":1.9785923376765986,"price_efficiency":0.3246020020222112,"price_slope_pct":-0.5745761676113682,"atr_pct":2.305521187944782,"vol_ratio":0.05743915929141236,"mean_return":-0.004976235983796587,"lookback_candles":100},"regime_explanation":"High volatility regime detected with vol=0.290 (threshold=0.030). Market showing unpredictable movements.","decision":"delegate_to_underlying_strategy","decision_reason":"Regime volatile is favorable for MultiStrategyAggregator","underlying_strategy":"MultiStrategyAggregator","underlying_signal":"SELL","underlying_confidence":0.34285714285714286,"underlying_metadata":{"contributions":[{"strategy":"ContinuationStrategy","action":"hold","confidence":0.0,"weight":0.4},{"strategy":"FVGStrategy","action":"sell","confidence":0.8,"weight":0.3}]},"confidence_adjusted":"True","allowed_regimes":["trending","quiet","volatile"]}}
+2026-01-07 23:14:34,234 - __main__ - INFO - [RISK] Calculating position size
+2026-01-07 23:14:34,234 - __main__ - INFO - [RISK] Position size: 0.000323 (approved: True)
+2026-01-07 23:14:34,234 - __main__ - INFO - [RISK] Checking drawdown limits
+2026-01-07 23:14:34,234 - risk.drawdown_guard - INFO - Equity updated: $1000.00 -> $1000.00 (+0.00%)
+2026-01-07 23:14:34,235 - __main__ - INFO - [RISK] Drawdown check: True
+2026-01-07 23:14:34,235 - __main__ - INFO - [EXECUTION] Placing SELL order
+2026-01-07 23:14:34,235 - execution.broker - INFO - Executing sell order: 0.0003 BTC/USDT @ $50000.00
+2026-01-07 23:14:34,235 - execution.broker - INFO - Order executed successfully: paper_000001 (filled)
+2026-01-07 23:14:34,235 - __main__ - INFO - [EXECUTION] Order filled: 49975.0 x 0.00032328655665288063
+2026-01-07 23:14:34,235 INFO trade {"symbol":"BTC/USDT","side":"SELL","price":49975.0,"quantity":0.00032328655665288063,"timestamp":"2026-01-07T22:14:34.235830"}
+2026-01-07 23:15:34,297 - __main__ - INFO - Run-once flag set - exiting trading loop after single iteration
+2026-01-07 23:15:34,297 - __main__ - INFO - ================================================================================
+2026-01-07 23:15:34,297 - __main__ - INFO - INITIATING GRACEFUL SHUTDOWN
+2026-01-07 23:15:34,297 - __main__ - INFO - ================================================================================
+2026-01-07 23:15:34,298 INFO platform.shutdown_started {"timestamp":"2026-01-07T22:15:34.298019"}
+2026-01-07 23:15:34,298 - __main__ - INFO - [1/6] Shutting down Execution Module
+2026-01-07 23:15:34,298 - __main__ - INFO -    ✓ OrderManager stats: 0 completed, 0 pending
+2026-01-07 23:15:34,298 - __main__ - INFO -    ✓ Broker final equity: $1016.14
+2026-01-07 23:15:34,299 - __main__ - INFO - [2/6] Shutting down Risk Module
+2026-01-07 23:15:34,299 - __main__ - INFO -    ✓ Final drawdown metrics: DrawdownMetrics(equity=$1000.00, daily_dd=0.00%, total_dd=0.00%)
+2026-01-07 23:15:34,299 - __main__ - INFO - [3/6] Shutting down Strategy Module
+2026-01-07 23:15:34,299 - __main__ - INFO -    ✓ Strategy: RegimeBasedStrategy
+2026-01-07 23:15:34,299 - __main__ - INFO - [4/6] Shutting down Data Module
+2026-01-07 23:15:34,550 - __main__ - INFO -    ✓ Exchange disconnected
+2026-01-07 23:15:34,550 - __main__ - INFO - [5/6] Shutting down Monitoring Module
+2026-01-07 23:15:34,551 - __main__ - INFO -    ✓ Final metrics: 0 trades
+2026-01-07 23:15:34,551 - __main__ - INFO - [6/6] Shutting down Core Module
+2026-01-07 23:15:34,551 - __main__ - INFO -    ✓ Final state: paper
+2026-01-07 23:15:34,551 - __main__ - INFO - ================================================================================
+2026-01-07 23:15:34,551 - __main__ - INFO - SHUTDOWN COMPLETE
+2026-01-07 23:15:34,551 - __main__ - INFO - ================================================================================
+
+============================================================
+[CONTINUATION DEBUG] Starting analysis
+[CONTINUATION DEBUG] Data shape: (500, 6)
+[CONTINUATION DEBUG] Columns: ['timestamp', 'open', 'high', 'low', 'close', 'volume']
+[CONTINUATION DEBUG] Price range: $19479.67 → $42195.54
+[CONTINUATION DEBUG] Last 5 closes: [20982.615354732265, 20531.159873368262, 20107.140876898193, 19711.458273512166, 19697.816890589653]
+[CONTINUATION DEBUG] Trend detection: bull
+[CONTINUATION DEBUG] Impulse found: {'start': 489, 'end': 496, 'size_pct': np.float64(2.7076514037338404)}
+[CONTINUATION DEBUG] Consolidation found: None
+
+============================================================
+[FVG DEBUG] Starting analysis
+[FVG DEBUG] Data shape: (500, 6)
+[FVG DEBUG] Columns: ['timestamp', 'open', 'high', 'low', 'close', 'volume']
+[FVG DEBUG] Price range: $19479.67 → $42195.54
+[FVG DEBUG] FVGs found: 55
+  FVG 1: bullish_fvg, size=4.51%, age=148, filled=0.0%
+  FVG 2: bullish_fvg, size=0.23%, age=147, filled=0.0%
+  FVG 3: bullish_fvg, size=1.75%, age=145, filled=0.0%
+[FVG DEBUG] Active retest FVG: FairValueGap(gap_type='bearish_fvg', candle1_index=485, candle2_index=486, candle3_index=487, gap_top=np.float64(19930.99512180657), gap_bottom=np.float64(19670.39687809254), gap_size_pct=np.float64(1.3075024208345156), filled_pct=np.float64(0.8947805169124489), is_active=np.True_, formation_time=13)
+[FVG DEBUG] ✅ FVG PATTERN COMPLETE - Generating signal (conf=0.800)
+============================================================
+

@@ -1,0 +1,198 @@
+# Live Trading Configuration - Conservative Activation
+#
+# This configuration activates all strategies with small positions and tight
+# risk controls. Start with this configuration and gradually increase exposure
+# only if paper/live performance matches backtested expectations.
+#
+# Design Principles:
+# - Max 10% position per trade (strict)
+# - Max 2% risk per trade (conservative)
+# - All readiness gating and execution logic preserved
+# - Paper mode allows safe testing before live activation
+#
+
+# Trading environment: paper, testnet, or live
+environment: paper # START IN PAPER MODE - only change to "live" after paper validation
+
+# Exchange configuration
+exchange:
+  id: binance
+  testnet: true # Set to false only for live trading with real API keys
+
+  # Binance API credentials - CHANGE THESE FOR LIVE
+  api_key: "YOUR_LIVE_API_KEY_HERE"
+  secret_key: "YOUR_LIVE_SECRET_KEY_HERE"
+
+  # For live trading, use production URLs
+  # testnet_url: "https://api.binance.com/api"
+  # testnet_ws_url: "wss://stream.binance.com:9443/ws"
+
+# Trading parameters
+trading:
+  # Multi-symbol portfolio
+  symbols:
+    - BTC/USDT # Primary pair
+    - ETH/USDT
+    - BNB/USDT
+    - XRP/USDT
+    - ADA/USDT
+
+  # Default symbol
+  symbol: BTC/USDT
+
+  timeframe: 1h
+  initial_capital: 100000.0 # ADJUST based on account size
+  fetch_limit: 500
+
+  # Multi-pair allocation - 20% per symbol, 100% total
+  allocation_per_symbol: 0.2
+
+# Strategy configuration - Multiple strategies activated
+strategy:
+  # Primary strategy: regime-based (gated on market conditions)
+  name: regime_based
+
+  # Underlying trend detection
+  fast_period: 20
+  slow_period: 50
+  signal_confidence: 0.75
+
+  # Regime restrictions - only trade in trending/quiet markets
+  allowed_regimes:
+    - trending
+    - quiet
+
+  regime_confidence_threshold: 0.5
+  reduce_confidence_in_marginal_regimes: true
+
+  # Volatile override - allow trending in volatile if strong
+  allow_volatile_trend_override: true
+  volatile_trend_strength_min: 1.0
+  volatile_confidence_scale: 0.5
+
+  # Multi-strategy aggregation
+  multi_strategy:
+    enabled: true
+    strategies:
+      - name: ema_trend
+        enabled: true
+        params:
+          fast_period: 20
+          slow_period: 50
+          signal_confidence: 0.75
+        weight: 1.0
+
+      - name: ema_trend_medium
+        enabled: true
+        params:
+          fast_period: 50
+          slow_period: 200
+          signal_confidence: 0.65
+        weight: 0.8
+
+      - name: ema_trend_long
+        enabled: true
+        params:
+          fast_period: 100
+          slow_period: 300
+          signal_confidence: 0.60
+        weight: 0.6
+
+    # Enable adaptive weighting based on performance
+    adaptive_weighting:
+      enabled: true
+      learning_rate: 0.1
+      min_samples: 20
+
+# Risk management - CONSERVATIVE SETTINGS FOR LIVE TRADING
+risk:
+  # Position sizing constraints
+  max_position_size: 0.1 # 10% of equity max per trade
+  risk_per_trade: 0.02 # 2% risk per trade (conservative)
+  sizing_method: fixed_risk # Use fixed risk sizing
+  use_confidence_scaling: true # Scale positions by signal confidence
+
+  # Drawdown protection - strict limits
+  max_daily_drawdown: 0.05 # 5% max daily loss
+  max_total_drawdown: 0.20 # 20% max total drawdown from peak
+  max_consecutive_losses: 5 # Halt after 5 consecutive losses
+
+  # Per-symbol risk limits (optional)
+  per_symbol_max_position: 0.08 # Max 8% per symbol
+  per_symbol_risk: 0.015 # Max 1.5% risk per symbol
+
+# Execution settings
+execution:
+  order_timeout: 30 # 30 second order timeout
+  max_retries: 3 # Retry orders up to 3 times
+  retry_delay: 5 # 5 second delay between retries
+
+  # Live trading specific
+  check_balance: true # Verify balance before orders
+  post_only: false # Set true for maker-only orders
+  reduce_only: false # Don't set to true unless closing positions
+
+# Monitoring and logging
+monitoring:
+  log_level: INFO # INFO=detailed, DEBUG=very detailed
+  log_file: logs/live_trading.log
+  metrics_enabled: true
+
+  # Alert system
+  runtime_alerts:
+    enabled: true
+    readiness_threshold: not_ready # Alert if readiness drops to "not_ready"
+    confidence_threshold: 0.85 # Alert if confidence > 85% with reversal
+    deviation_threshold: 0.3 # Alert if strategy deviates > 30% from aggregate
+
+  # Performance monitoring
+  performance:
+    enabled: true
+    equity_check_interval: 1h # Check equity every hour
+    drawdown_warning_pct: 0.03 # Warn at 3% drawdown
+    success_rate_target: 0.55 # Target 55% win rate
+    readiness_correlation: true # Track readiness vs success
+
+  # Logging detail
+  log_trades: true # Log every trade
+  log_signals: true # Log every signal generation
+  log_positions: true # Log position updates
+  log_alerts: true # Log all alerts
+
+# Activation stages (comments for phased rollout)
+#
+# STAGE 1 - PAPER MODE VALIDATION (this config, paper mode)
+# =========================================================
+# - Run with max_position_size: 0.1, risk_per_trade: 0.02
+# - Monitor for 1-2 weeks minimum
+# - Check: readiness accuracy, signal distribution, drawdown behavior
+# - Verify alert system catches real anomalies
+# - PASS CRITERIA: 50%+ win rate, drawdown < 2%, readiness matches expectations
+#
+# STAGE 2 - TESTNET VALIDATION (change environment to testnet)
+# =============================================================
+# - Run with same parameters in testnet mode
+# - Monitor for 1 week with real exchange latency
+# - Check: order fills, latency impact, slippage estimates
+# - PASS CRITERIA: Similar metrics to paper, order fill rate > 95%
+#
+# STAGE 3 - LIVE MICRO POSITIONS (change environment to live, small capital)
+# ============================================================================
+# - Start with $1000-5000 initial capital
+# - Run for 1-2 weeks
+# - Monitor: real slippage, actual fills, fees impact
+# - PASS CRITERIA: Consistent with paper/testnet, no unexpected slippage
+#
+# STAGE 4 - LIVE SCALING (increase capital gradually)
+# ====================================================
+# - After 2+ weeks successful live trading at micro level
+# - Only increase capital if performance matches paper expectations
+# - Increase by 50% per week: $5k → $7.5k → $10k → $15k
+# - Can stop at any level or return to paper if performance drops
+#
+# STAGE 5 - PRODUCTION (full capital allocation)
+# ================================================
+# - After 4+ weeks at full capital with consistent performance
+# - Consider increasing position size and risk limits
+# - Can adjust thresholds based on observed regime behavior
+

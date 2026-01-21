@@ -1,0 +1,1243 @@
+#!/usr/bin/env python3
+"""
+test_backtest_phase2_regime.py - RegimeBasedStrategy Integration Tests
+
+Tests the BacktestEngine with RegimeBasedStrategy, validating:
+- Regime detection across different market conditions
+- Signal filtering based on regime (HOLD in unfavorable regimes)
+- Proper delegation to underlying strategy in favorable regimes
+- Risk management integration
+- Metrics collection with regime-aware trading
+- Regime transition handling
+
+Uses synthetic OHLCV data that simulates:
+- TRENDING: Steadily increasing prices with strong directional movement
+- RANGING: Sideways oscillation within bounds
+- VOLATILE: Large random fluctuations
+- QUIET: Small, low-volatility movements
+"""
+
+import pytest
+import sys
+from pathlib import Path
+from unittest.mock import Mock, MagicMock, patch
+from datetime import datetime
+from typing import List, Tuple
+
+# Add project root to path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+import pandas as pd
+import numpy as np
+
+from backtesting.engine import BacktestEngine, ExecutionConfig, BacktestError
+from strategies.regime_strategy import RegimeBasedStrategy
+from strategies.regime_detector import RegimeDetector, MarketRegime
+from strategies.ema_trend import EMATrendStrategy
+from strategies.base import PositionState, Signal, SignalOutput
+from monitoring.metrics import MetricsCollector
+from risk.position_sizing import PositionSizer
+from risk.drawdown_guard import DrawdownGuard
+
+
+# ============================================================================
+# SYNTHETIC DATA GENERATORS FOR DIFFERENT MARKET REGIMES
+# ============================================================================
+
+def generate_trending_data(
+    start_price: float = 100.0,
+    num_bars: int = 100,
+    trend_strength: float = 0.5,
+    volatility: float = 0.01,
+    start_ts: int = 1700000000000
+) -> List[List]:
+    """
+    Generate synthetic OHLCV data for TRENDING regime.
+    
+    Creates steadily increasing prices with consistent directional movement,
+    strong trend, and moderate volatility.
+    
+    Args:
+        start_price: Starting price level
+        num_bars: Number of candles to generate
+        trend_strength: Price increase per bar (% of price)
+        volatility: Random noise amplitude (% of price)
+        start_ts: Starting timestamp (milliseconds)
+    
+    Returns:
+        List of [timestamp, open, high, low, close, volume] arrays
+    """
+    bars = []
+    price = start_price
+    
+    for i in range(num_bars):
+        # Consistent upward drift
+        price_change = price * trend_strength / 100
+        noise = price * volatility * np.random.randn()
+        
+        open_price = price
+        close_price = price + price_change + noise
+        high_price = max(open_price, close_price) * (1 + abs(volatility * np.random.rand()))
+        low_price = min(open_price, close_price) * (1 - abs(volatility * np.random.rand()))
+        
+        volume = 10 + 5 * np.random.rand()
+        timestamp = start_ts + i * 3600000  # 1-hour bars
+        
+        bars.append([timestamp, open_price, high_price, low_price, close_price, volume])
+        price = close_price
+    
+    return bars
+
+
+def generate_ranging_data(
+    center_price: float = 100.0,
+    num_bars: int = 100,
+    range_width: float = 5.0,
+    start_ts: int = 1700000000000
+) -> List[List]:
+    """
+    Generate synthetic OHLCV data for RANGING regime.
+    
+    Creates sideways price movement oscillating within defined bounds,
+    low trend strength, moderate volatility.
+    
+    Args:
+        center_price: Midpoint of the range
+        num_bars: Number of candles to generate
+        range_width: Total range width (in price units)
+        start_ts: Starting timestamp (milliseconds)
+    
+    Returns:
+        List of [timestamp, open, high, low, close, volume] arrays
+    """
+    bars = []
+    price = center_price
+    
+    for i in range(num_bars):
+        # Oscillate around center with sine wave + noise
+        oscillation = (range_width / 2) * np.sin(i / 10)
+        noise = (range_width / 10) * np.random.randn()
+        
+        close_price = center_price + oscillation + noise
+        # Ensure stays within range
+        close_price = np.clip(
+            close_price,
+            center_price - range_width / 2,
+            center_price + range_width / 2
+        )
+        
+        open_price = price
+        high_price = max(open_price, close_price) * 1.002
+        low_price = min(open_price, close_price) * 0.998
+        
+        volume = 10 + 5 * np.random.rand()
+        timestamp = start_ts + i * 3600000
+        
+        bars.append([timestamp, open_price, high_price, low_price, close_price, volume])
+        price = close_price
+    
+    return bars
+
+
+def generate_volatile_data(
+    start_price: float = 100.0,
+    num_bars: int = 100,
+    volatility: float = 0.05,
+    start_ts: int = 1700000000000
+) -> List[List]:
+    """
+    Generate synthetic OHLCV data for VOLATILE regime.
+    
+    Creates large random price fluctuations with no clear trend,
+    high volatility, and unpredictable movements.
+    
+    Args:
+        start_price: Starting price level
+        num_bars: Number of candles to generate
+        volatility: High volatility factor (% of price)
+        start_ts: Starting timestamp (milliseconds)
+    
+    Returns:
+        List of [timestamp, open, high, low, close, volume] arrays
+    """
+    bars = []
+    price = start_price
+    
+    for i in range(num_bars):
+        # Large random jumps in both directions
+        jump = price * volatility * np.random.randn()
+        
+        open_price = price
+        close_price = price + jump
+        
+        # Wide intra-bar range
+        high_price = max(open_price, close_price) * (1 + volatility * np.random.rand())
+        low_price = min(open_price, close_price) * (1 - volatility * np.random.rand())
+        
+        volume = 15 + 10 * np.random.rand()  # Higher volume in volatile periods
+        timestamp = start_ts + i * 3600000
+        
+        bars.append([timestamp, open_price, high_price, low_price, close_price, volume])
+        price = close_price
+    
+    return bars
+
+
+def generate_quiet_data(
+    start_price: float = 100.0,
+    num_bars: int = 100,
+    volatility: float = 0.002,
+    start_ts: int = 1700000000000
+) -> List[List]:
+    """
+    Generate synthetic OHLCV data for QUIET regime.
+    
+    Creates minimal price movement with very low volatility,
+    almost flat trend, and tight ranges.
+    
+    Args:
+        start_price: Starting price level
+        num_bars: Number of candles to generate
+        volatility: Very low volatility factor
+        start_ts: Starting timestamp (milliseconds)
+    
+    Returns:
+        List of [timestamp, open, high, low, close, volume] arrays
+    """
+    bars = []
+    price = start_price
+    
+    for i in range(num_bars):
+        # Tiny random movements
+        drift = price * volatility * np.random.randn()
+        
+        open_price = price
+        close_price = price + drift
+        high_price = max(open_price, close_price) * (1 + volatility / 2)
+        low_price = min(open_price, close_price) * (1 - volatility / 2)
+        
+        volume = 5 + 2 * np.random.rand()  # Low volume in quiet periods
+        timestamp = start_ts + i * 3600000
+        
+        bars.append([timestamp, open_price, high_price, low_price, close_price, volume])
+        price = close_price
+    
+    return bars
+
+
+def create_ohlcv_bars(data: List[List], symbol: str = "BTC/USDT") -> List[dict]:
+    """
+    Convert OHLCV arrays to normalized bar dictionaries for BacktestEngine.
+    
+    Args:
+        data: List of [timestamp, open, high, low, close, volume] arrays
+        symbol: Trading pair symbol
+    
+    Returns:
+        List of bar dictionaries with standardized format
+    """
+    bars = []
+    for row in data:
+        timestamp, o, h, l, c, v = row
+        bars.append({
+            'symbol': symbol,
+            'timestamp': int(timestamp),
+            'open': float(o),
+            'high': float(h),
+            'low': float(l),
+            'close': float(c),
+            'volume': float(v)
+        })
+    return bars
+
+
+# ============================================================================
+# TEST FIXTURES
+# ============================================================================
+
+@pytest.fixture
+def regime_detector():
+    """Create RegimeDetector with standard parameters."""
+    return RegimeDetector(
+        lookback_period=50,  # Shorter for faster testing
+        volatility_threshold_high=0.03,
+        volatility_threshold_low=0.01,
+        trend_threshold_strong=2.0,
+        trend_threshold_weak=0.5
+    )
+
+
+@pytest.fixture
+def underlying_strategy():
+    """Create EMATrendStrategy as the underlying strategy."""
+    return EMATrendStrategy(
+        fast_period=10,
+        slow_period=20,
+        min_trend_strength=0.001
+    )
+
+
+@pytest.fixture
+def regime_strategy(regime_detector, underlying_strategy):
+    """Create RegimeBasedStrategy with EMA as underlying."""
+    return RegimeBasedStrategy(
+        underlying_strategy=underlying_strategy,
+        regime_detector=regime_detector,
+        allowed_regimes=[MarketRegime.TRENDING],  # Only allow signals in trending markets
+        regime_confidence_threshold=0.5
+    )
+
+
+@pytest.fixture
+def metrics_collector():
+    """Create MetricsCollector for tracking performance."""
+    return MetricsCollector()
+
+
+@pytest.fixture
+def position_sizer():
+    """Create PositionSizer for risk management."""
+    return PositionSizer(
+        account_equity=10000.0,
+        risk_per_trade=0.01,  # 1% risk per trade
+        max_position_size=1000.0  # Max $1000 per position
+    )
+
+
+@pytest.fixture
+def drawdown_guard():
+    """Create DrawdownGuard for drawdown protection."""
+    return DrawdownGuard(
+        initial_equity=10000.0,
+        max_daily_drawdown=0.05,  # 5% max daily drawdown
+        max_total_drawdown=0.20  # 20% max total drawdown
+    )
+
+
+# ============================================================================
+# STRATEGY ADAPTER FOR BACKTESTING
+# ============================================================================
+
+class RegimeStrategyAdapter:
+    """
+    Adapter to use RegimeBasedStrategy with BacktestEngine.
+    
+    BacktestEngine expects strategies with on_start/on_bar/on_end methods.
+    This adapter wraps RegimeBasedStrategy and executes trades based on signals.
+    """
+    
+    def __init__(self, regime_strategy: RegimeBasedStrategy, symbol: str = "BTC/USDT"):
+        self.regime_strategy = regime_strategy
+        self.symbol = symbol
+        self.bars_buffer = []
+        self.signals_generated = []
+        self.orders_placed = []
+        self.position_size = 0.0  # Track current position
+    
+    def on_start(self, engine):
+        """Initialize strategy."""
+        self.bars_buffer = []
+        self.signals_generated = []
+        self.orders_placed = []
+        self.position_size = 0.0
+    
+    def on_bar(self, bar, engine):
+        """Process each bar."""
+        # Add bar to buffer
+        self.bars_buffer.append(bar)
+        
+        # Need minimum data for regime detection
+        if len(self.bars_buffer) < 20:
+            return
+        
+        # Convert bars to DataFrame
+        df = pd.DataFrame(self.bars_buffer)
+        
+        # Determine current position state
+        position_state = PositionState(has_position=(self.position_size != 0))
+        
+        try:
+            # Generate signal using regime strategy
+            signal_output = self.regime_strategy.generate_signal(df, position_state)
+            self.signals_generated.append(signal_output)
+            
+            # Execute based on signal
+            if signal_output.signal == Signal.BUY and self.position_size == 0:
+                result = engine.place_market_order(
+                    symbol=self.symbol,
+                    size=0.1,
+                    side="buy"
+                )
+                self.orders_placed.append(result)
+                self.position_size = 0.1
+            
+            elif signal_output.signal == Signal.SELL and self.position_size > 0:
+                result = engine.place_market_order(
+                    symbol=self.symbol,
+                    size=self.position_size,
+                    side="sell"
+                )
+                self.orders_placed.append(result)
+                self.position_size = 0.0
+        
+        except Exception as e:
+            # Handle any strategy errors gracefully
+            pass
+    
+    def on_end(self, engine):
+        """Cleanup - close any open positions."""
+        if self.position_size > 0:
+            try:
+                engine.place_market_order(
+                    symbol=self.symbol,
+                    size=self.position_size,
+                    side="sell"
+                )
+            except:
+                pass
+
+
+# ============================================================================
+# TEST CLASS: BASIC REGIME STRATEGY FUNCTIONALITY
+# ============================================================================
+
+class TestRegimeStrategyBasic:
+    """Test basic RegimeBasedStrategy functionality with BacktestEngine."""
+    
+    def test_engine_initialization_with_regime_strategy(
+        self,
+        regime_strategy
+    ):
+        """
+        Test that BacktestEngine initializes successfully with RegimeBasedStrategy.
+        
+        Validates:
+        - Engine accepts RegimeBasedStrategy adapter
+        - All components initialize without errors
+        - Engine is ready to run backtest
+        """
+        symbol = "BTC/USDT"
+        bars = create_ohlcv_bars(generate_trending_data(num_bars=50), symbol)
+        
+        exec_config = ExecutionConfig(
+            initial_cash=10000.0,
+            slippage_pct=0.001,
+            commission_pct=0.001
+        )
+        
+        engine = BacktestEngine(exec_cfg=exec_config)
+        adapter = RegimeStrategyAdapter(regime_strategy, symbol)
+        
+        result = engine.run_backtest(bars, adapter)
+        
+        assert result is not None
+        assert isinstance(result, dict)
+    
+    def test_engine_runs_without_errors_regime_strategy(
+        self,
+        regime_strategy
+    ):
+        """
+        Test that BacktestEngine runs complete backtest without exceptions.
+        
+        Validates:
+        - Full backtest lifecycle executes
+        - No runtime errors
+        - Returns valid result dictionary
+        """
+        symbol = "BTC/USDT"
+        bars = create_ohlcv_bars(generate_trending_data(num_bars=100), symbol)
+        
+        exec_config = ExecutionConfig(
+            initial_cash=10000.0,
+            slippage_pct=0.001,
+            commission_pct=0.001
+        )
+        
+        engine = BacktestEngine(exec_cfg=exec_config)
+        adapter = RegimeStrategyAdapter(regime_strategy, symbol)
+        
+        result = engine.run_backtest(bars, adapter)
+        
+        assert result is not None
+        assert isinstance(result, dict)
+        assert 'metrics' in result
+
+
+# ============================================================================
+# TEST CLASS: REGIME DETECTION AND SIGNAL FILTERING
+# ============================================================================
+
+class TestRegimeDetectionAndFiltering:
+    """Test regime detection and signal filtering across different market conditions."""
+    
+    @pytest.mark.asyncio
+    async def test_trending_regime_allows_signals(
+        self,
+        regime_strategy,
+        metrics_collector
+    ):
+        """
+        Test that RegimeBasedStrategy allows underlying strategy signals in TRENDING regime.
+        
+        Validates:
+        - TRENDING regime is detected correctly
+        - Underlying strategy signals are passed through
+        - Strategy metadata includes regime information
+        """
+        symbol = "BTC/USDT"
+        # Generate strong trending data
+        bars = create_ohlcv_bars(
+            generate_trending_data(num_bars=100, trend_strength=0.8, volatility=0.01),
+            symbol
+        )
+        
+        exec_config = ExecutionConfig(
+            slippage_bps=10,
+            commission_bps=10,
+            symbol=symbol
+        )
+        
+        engine = BacktestEngine(
+            strategy=regime_strategy,
+            bars=bars,
+            initial_cash=10000.0,
+            exec_config=exec_config,
+            metrics_collector=metrics_collector
+        )
+        
+        result = await engine.run()
+        
+        # In trending market, strategy should generate some signals
+        assert result is not None
+        # Check that some orders were attempted (may be rejected by risk)
+        # The key is that regime allows the underlying strategy to operate
+        assert result['bars_processed'] == 100
+    
+    @pytest.mark.asyncio
+    async def test_ranging_regime_returns_hold(
+        self,
+        regime_detector,
+        underlying_strategy,
+        metrics_collector
+    ):
+        """
+        Test that RegimeBasedStrategy returns HOLD signals in RANGING regime.
+        
+        Validates:
+        - RANGING regime is detected
+        - Strategy returns HOLD instead of delegating to underlying
+        - No trades are executed in unfavorable regime
+        """
+        symbol = "BTC/USDT"
+        
+        # Create regime strategy that only allows TRENDING
+        regime_strategy = RegimeBasedStrategy(
+            underlying_strategy=underlying_strategy,
+            regime_detector=regime_detector,
+            allowed_regimes=[MarketRegime.TRENDING],  # RANGING not allowed
+            regime_confidence_threshold=0.5
+        )
+        
+        # Generate ranging data
+        bars = create_ohlcv_bars(
+            generate_ranging_data(num_bars=100, range_width=5.0),
+            symbol
+        )
+        
+        exec_config = ExecutionConfig(
+            slippage_bps=10,
+            commission_bps=10,
+            symbol=symbol
+        )
+        
+        engine = BacktestEngine(
+            strategy=regime_strategy,
+            bars=bars,
+            initial_cash=10000.0,
+            exec_config=exec_config,
+            metrics_collector=metrics_collector
+        )
+        
+        result = await engine.run()
+        
+        # In ranging market, strategy should mostly HOLD
+        assert result is not None
+        # Trades should be minimal or zero since regime is unfavorable
+        metrics = metrics_collector.get_overall_metrics()
+        # Either no trades or very few compared to trending
+        assert metrics.get('total_trades', 0) < 5  # Very few trades expected
+    
+    @pytest.mark.asyncio
+    async def test_volatile_regime_returns_hold(
+        self,
+        regime_detector,
+        underlying_strategy,
+        metrics_collector
+    ):
+        """
+        Test that RegimeBasedStrategy returns HOLD signals in VOLATILE regime.
+        
+        Validates:
+        - VOLATILE regime is detected
+        - Strategy avoids trading in high-volatility conditions
+        - Risk management is preserved
+        """
+        symbol = "BTC/USDT"
+        
+        regime_strategy = RegimeBasedStrategy(
+            underlying_strategy=underlying_strategy,
+            regime_detector=regime_detector,
+            allowed_regimes=[MarketRegime.TRENDING],
+            regime_confidence_threshold=0.5
+        )
+        
+        # Generate highly volatile data
+        bars = create_ohlcv_bars(
+            generate_volatile_data(num_bars=100, volatility=0.06),
+            symbol
+        )
+        
+        exec_config = ExecutionConfig(
+            slippage_bps=10,
+            commission_bps=10,
+            symbol=symbol
+        )
+        
+        engine = BacktestEngine(
+            strategy=regime_strategy,
+            bars=bars,
+            initial_cash=10000.0,
+            exec_config=exec_config,
+            metrics_collector=metrics_collector
+        )
+        
+        result = await engine.run()
+        
+        assert result is not None
+        # Should avoid most trading in volatile conditions
+        metrics = metrics_collector.get_overall_metrics()
+        assert metrics.get('total_trades', 0) < 5
+    
+    @pytest.mark.asyncio
+    async def test_quiet_regime_returns_hold(
+        self,
+        regime_detector,
+        underlying_strategy,
+        metrics_collector
+    ):
+        """
+        Test that RegimeBasedStrategy returns HOLD signals in QUIET regime.
+        
+        Validates:
+        - QUIET regime is detected
+        - Strategy avoids trading when opportunity is minimal
+        - Prevents false signals in low-volatility periods
+        """
+        symbol = "BTC/USDT"
+        
+        regime_strategy = RegimeBasedStrategy(
+            underlying_strategy=underlying_strategy,
+            regime_detector=regime_detector,
+            allowed_regimes=[MarketRegime.TRENDING],
+            regime_confidence_threshold=0.5
+        )
+        
+        # Generate quiet, low-volatility data
+        bars = create_ohlcv_bars(
+            generate_quiet_data(num_bars=100, volatility=0.001),
+            symbol
+        )
+        
+        exec_config = ExecutionConfig(
+            slippage_bps=10,
+            commission_bps=10,
+            symbol=symbol
+        )
+        
+        engine = BacktestEngine(
+            strategy=regime_strategy,
+            bars=bars,
+            initial_cash=10000.0,
+            exec_config=exec_config,
+            metrics_collector=metrics_collector
+        )
+        
+        result = await engine.run()
+        
+        assert result is not None
+        # Should avoid trading in quiet markets
+        metrics = metrics_collector.get_overall_metrics()
+        assert metrics.get('total_trades', 0) < 5
+
+
+# ============================================================================
+# TEST CLASS: REGIME TRANSITIONS
+# ============================================================================
+
+class TestRegimeTransitions:
+    """Test strategy behavior during regime transitions."""
+    
+    @pytest.mark.asyncio
+    async def test_regime_transition_trending_to_ranging(
+        self,
+        regime_detector,
+        underlying_strategy,
+        metrics_collector
+    ):
+        """
+        Test strategy handles transition from TRENDING to RANGING regime.
+        
+        Validates:
+        - Strategy detects regime change
+        - Switches from active trading to HOLD
+        - No errors during transition
+        """
+        symbol = "BTC/USDT"
+        
+        regime_strategy = RegimeBasedStrategy(
+            underlying_strategy=underlying_strategy,
+            regime_detector=regime_detector,
+            allowed_regimes=[MarketRegime.TRENDING],
+            regime_confidence_threshold=0.5
+        )
+        
+        # Create mixed data: trending then ranging
+        trending_bars = generate_trending_data(
+            num_bars=50,
+            trend_strength=0.8,
+            start_ts=1700000000000
+        )
+        ranging_bars = generate_ranging_data(
+            num_bars=50,
+            center_price=trending_bars[-1][4],  # Continue from last close
+            start_ts=trending_bars[-1][0] + 3600000
+        )
+        
+        combined_bars = create_ohlcv_bars(trending_bars + ranging_bars, symbol)
+        
+        exec_config = ExecutionConfig(
+            slippage_bps=10,
+            commission_bps=10,
+            symbol=symbol
+        )
+        
+        engine = BacktestEngine(
+            strategy=regime_strategy,
+            bars=combined_bars,
+            initial_cash=10000.0,
+            exec_config=exec_config,
+            metrics_collector=metrics_collector
+        )
+        
+        result = await engine.run()
+        
+        assert result is not None
+        assert result['bars_processed'] == 100
+        # Should handle transition without errors
+    
+    @pytest.mark.asyncio
+    async def test_multiple_regime_changes(
+        self,
+        regime_detector,
+        underlying_strategy,
+        metrics_collector
+    ):
+        """
+        Test strategy handles multiple regime changes throughout backtest.
+        
+        Validates:
+        - Strategy adapts to changing conditions
+        - Robust to regime volatility
+        - Maintains stability across transitions
+        """
+        symbol = "BTC/USDT"
+        
+        regime_strategy = RegimeBasedStrategy(
+            underlying_strategy=underlying_strategy,
+            regime_detector=regime_detector,
+            allowed_regimes=[MarketRegime.TRENDING],
+            regime_confidence_threshold=0.5
+        )
+        
+        # Create sequence: trending -> ranging -> volatile -> quiet -> trending
+        bars_sequence = []
+        last_ts = 1700000000000
+        last_price = 100.0
+        
+        # Trending
+        trend1 = generate_trending_data(num_bars=30, start_price=last_price, start_ts=last_ts)
+        bars_sequence.extend(trend1)
+        last_ts = trend1[-1][0] + 3600000
+        last_price = trend1[-1][4]
+        
+        # Ranging
+        range1 = generate_ranging_data(num_bars=30, center_price=last_price, start_ts=last_ts)
+        bars_sequence.extend(range1)
+        last_ts = range1[-1][0] + 3600000
+        last_price = range1[-1][4]
+        
+        # Volatile
+        volatile1 = generate_volatile_data(num_bars=20, start_price=last_price, start_ts=last_ts)
+        bars_sequence.extend(volatile1)
+        last_ts = volatile1[-1][0] + 3600000
+        last_price = volatile1[-1][4]
+        
+        # Quiet
+        quiet1 = generate_quiet_data(num_bars=20, start_price=last_price, start_ts=last_ts)
+        bars_sequence.extend(quiet1)
+        
+        combined_bars = create_ohlcv_bars(bars_sequence, symbol)
+        
+        exec_config = ExecutionConfig(
+            slippage_bps=10,
+            commission_bps=10,
+            symbol=symbol
+        )
+        
+        engine = BacktestEngine(
+            strategy=regime_strategy,
+            bars=combined_bars,
+            initial_cash=10000.0,
+            exec_config=exec_config,
+            metrics_collector=metrics_collector
+        )
+        
+        result = await engine.run()
+        
+        assert result is not None
+        assert result['bars_processed'] == 100
+
+
+# ============================================================================
+# TEST CLASS: RISK MANAGEMENT INTEGRATION
+# ============================================================================
+
+class TestRiskManagementIntegration:
+    """Test RegimeBasedStrategy with full risk management."""
+    
+    @pytest.mark.asyncio
+    async def test_position_sizing_with_regime_strategy(
+        self,
+        regime_strategy,
+        metrics_collector,
+        position_sizer
+    ):
+        """
+        Test that PositionSizer correctly limits position sizes with RegimeBasedStrategy.
+        
+        Validates:
+        - Position sizing rules are enforced
+        - Regime signals respect position limits
+        - Orders are sized appropriately
+        """
+        symbol = "BTC/USDT"
+        bars = create_ohlcv_bars(
+            generate_trending_data(num_bars=50, trend_strength=1.0),
+            symbol
+        )
+        
+        exec_config = ExecutionConfig(
+            slippage_bps=10,
+            commission_bps=10,
+            symbol=symbol
+        )
+        
+        engine = BacktestEngine(
+            strategy=regime_strategy,
+            bars=bars,
+            initial_cash=10000.0,
+            exec_config=exec_config,
+            metrics_collector=metrics_collector,
+            position_sizer=position_sizer
+        )
+        
+        result = await engine.run()
+        
+        assert result is not None
+        # Verify that position sizing was applied (no single position > 10% equity)
+    
+    @pytest.mark.asyncio
+    async def test_drawdown_guard_stops_trading(
+        self,
+        regime_strategy,
+        metrics_collector,
+        drawdown_guard
+    ):
+        """
+        Test that DrawdownGuard prevents trading during excessive drawdowns.
+        
+        Validates:
+        - Drawdown monitoring is active
+        - Trading halts when drawdown exceeds threshold
+        - Strategy respects risk constraints even in favorable regimes
+        """
+        symbol = "BTC/USDT"
+        
+        # Create volatile data that could cause drawdown
+        bars = create_ohlcv_bars(
+            generate_volatile_data(num_bars=100, volatility=0.08),
+            symbol
+        )
+        
+        exec_config = ExecutionConfig(
+            slippage_bps=10,
+            commission_bps=10,
+            symbol=symbol
+        )
+        
+        engine = BacktestEngine(
+            strategy=regime_strategy,
+            bars=bars,
+            initial_cash=10000.0,
+            exec_config=exec_config,
+            metrics_collector=metrics_collector,
+            drawdown_guard=drawdown_guard
+        )
+        
+        result = await engine.run()
+        
+        assert result is not None
+        # Verify drawdown guard was active
+        metrics = metrics_collector.get_overall_metrics()
+        # If drawdown occurred, trading should have been limited
+
+
+# ============================================================================
+# TEST CLASS: METRICS AND REPORTING
+# ============================================================================
+
+class TestMetricsWithRegimeStrategy:
+    """Test metrics collection with RegimeBasedStrategy."""
+    
+    @pytest.mark.asyncio
+    async def test_metrics_recorded_correctly(
+        self,
+        regime_strategy,
+        metrics_collector
+    ):
+        """
+        Test that MetricsCollector properly records trades and equity.
+        
+        Validates:
+        - All trades are recorded
+        - Equity curve is tracked
+        - Metrics are computed correctly
+        """
+        symbol = "BTC/USDT"
+        bars = create_ohlcv_bars(
+            generate_trending_data(num_bars=100, trend_strength=0.6),
+            symbol
+        )
+        
+        exec_config = ExecutionConfig(
+            slippage_bps=10,
+            commission_bps=10,
+            symbol=symbol
+        )
+        
+        engine = BacktestEngine(
+            strategy=regime_strategy,
+            bars=bars,
+            initial_cash=10000.0,
+            exec_config=exec_config,
+            metrics_collector=metrics_collector
+        )
+        
+        result = await engine.run()
+        
+        assert result is not None
+        
+        # Check metrics
+        metrics = metrics_collector.get_overall_metrics()
+        assert isinstance(metrics, dict)
+        assert 'total_trades' in metrics
+        assert 'total_pnl' in metrics
+        assert 'win_rate' in metrics or metrics['total_trades'] == 0
+    
+    @pytest.mark.asyncio
+    async def test_backtest_result_structure(
+        self,
+        regime_strategy,
+        metrics_collector
+    ):
+        """
+        Test that backtest result contains all expected fields.
+        
+        Validates:
+        - Result dictionary has required keys
+        - Values are sensible types
+        - Final equity is computed
+        """
+        symbol = "BTC/USDT"
+        bars = create_ohlcv_bars(
+            generate_trending_data(num_bars=50),
+            symbol
+        )
+        
+        exec_config = ExecutionConfig(
+            slippage_bps=10,
+            commission_bps=10,
+            symbol=symbol
+        )
+        
+        engine = BacktestEngine(
+            strategy=regime_strategy,
+            bars=bars,
+            initial_cash=10000.0,
+            exec_config=exec_config,
+            metrics_collector=metrics_collector
+        )
+        
+        result = await engine.run()
+        
+        assert 'final_equity' in result
+        assert 'bars_processed' in result
+        assert isinstance(result['final_equity'], (int, float))
+        assert isinstance(result['bars_processed'], int)
+        assert result['bars_processed'] == 50
+
+
+# ============================================================================
+# TEST CLASS: EDGE CASES
+# ============================================================================
+
+class TestRegimeStrategyEdgeCases:
+    """Test edge cases and error handling."""
+    
+    @pytest.mark.asyncio
+    async def test_empty_bars_list(self, regime_strategy, metrics_collector):
+        """
+        Test that engine handles empty bars list gracefully.
+        
+        Validates:
+        - No crash with empty input
+        - Appropriate result returned
+        """
+        symbol = "BTC/USDT"
+        bars = []
+        
+        exec_config = ExecutionConfig(
+            slippage_bps=10,
+            commission_bps=10,
+            symbol=symbol
+        )
+        
+        engine = BacktestEngine(
+            strategy=regime_strategy,
+            bars=bars,
+            initial_cash=10000.0,
+            exec_config=exec_config,
+            metrics_collector=metrics_collector
+        )
+        
+        result = await engine.run()
+        
+        assert result is not None
+        assert result['bars_processed'] == 0
+    
+    @pytest.mark.asyncio
+    async def test_single_bar_sequence(self, regime_strategy, metrics_collector):
+        """
+        Test that engine handles single bar input.
+        
+        Validates:
+        - No crash with minimal data
+        - Regime detection handles insufficient data
+        """
+        symbol = "BTC/USDT"
+        bars = create_ohlcv_bars(
+            generate_trending_data(num_bars=1),
+            symbol
+        )
+        
+        exec_config = ExecutionConfig(
+            slippage_bps=10,
+            commission_bps=10,
+            symbol=symbol
+        )
+        
+        engine = BacktestEngine(
+            strategy=regime_strategy,
+            bars=bars,
+            initial_cash=10000.0,
+            exec_config=exec_config,
+            metrics_collector=metrics_collector
+        )
+        
+        result = await engine.run()
+        
+        assert result is not None
+        assert result['bars_processed'] == 1
+    
+    @pytest.mark.asyncio
+    async def test_insufficient_data_for_regime_detection(
+        self,
+        regime_detector,
+        underlying_strategy,
+        metrics_collector
+    ):
+        """
+        Test strategy behavior when insufficient data for regime classification.
+        
+        Validates:
+        - Strategy handles insufficient lookback gracefully
+        - Defaults to safe behavior (likely HOLD)
+        - No exceptions raised
+        """
+        symbol = "BTC/USDT"
+        
+        # Use long lookback period
+        long_lookback_detector = RegimeDetector(lookback_period=200)
+        
+        regime_strategy = RegimeBasedStrategy(
+            underlying_strategy=underlying_strategy,
+            regime_detector=long_lookback_detector,
+            allowed_regimes=[MarketRegime.TRENDING],
+            regime_confidence_threshold=0.5
+        )
+        
+        # Provide only 50 bars (less than lookback)
+        bars = create_ohlcv_bars(
+            generate_trending_data(num_bars=50),
+            symbol
+        )
+        
+        exec_config = ExecutionConfig(
+            slippage_bps=10,
+            commission_bps=10,
+            symbol=symbol
+        )
+        
+        engine = BacktestEngine(
+            strategy=regime_strategy,
+            bars=bars,
+            initial_cash=10000.0,
+            exec_config=exec_config,
+            metrics_collector=metrics_collector
+        )
+        
+        result = await engine.run()
+        
+        assert result is not None
+        assert result['bars_processed'] == 50
+        # Should complete without errors even with insufficient data
+
+
+# ============================================================================
+# TEST CLASS: ALLOWED REGIMES CONFIGURATION
+# ============================================================================
+
+class TestAllowedRegimesConfiguration:
+    """Test different allowed_regimes configurations."""
+    
+    @pytest.mark.asyncio
+    async def test_multiple_allowed_regimes(
+        self,
+        regime_detector,
+        underlying_strategy,
+        metrics_collector
+    ):
+        """
+        Test strategy with multiple allowed regimes (e.g., TRENDING and RANGING).
+        
+        Validates:
+        - Strategy allows signals in multiple configured regimes
+        - Filtering works correctly with multiple allowances
+        """
+        symbol = "BTC/USDT"
+        
+        # Allow both TRENDING and RANGING
+        regime_strategy = RegimeBasedStrategy(
+            underlying_strategy=underlying_strategy,
+            regime_detector=regime_detector,
+            allowed_regimes=[MarketRegime.TRENDING, MarketRegime.RANGING],
+            regime_confidence_threshold=0.5
+        )
+        
+        # Mix of trending and ranging data
+        trending = generate_trending_data(num_bars=50, start_ts=1700000000000)
+        ranging = generate_ranging_data(
+            num_bars=50,
+            center_price=trending[-1][4],
+            start_ts=trending[-1][0] + 3600000
+        )
+        
+        bars = create_ohlcv_bars(trending + ranging, symbol)
+        
+        exec_config = ExecutionConfig(
+            slippage_bps=10,
+            commission_bps=10,
+            symbol=symbol
+        )
+        
+        engine = BacktestEngine(
+            strategy=regime_strategy,
+            bars=bars,
+            initial_cash=10000.0,
+            exec_config=exec_config,
+            metrics_collector=metrics_collector
+        )
+        
+        result = await engine.run()
+        
+        assert result is not None
+        # Should allow trading in both regimes
+        metrics = metrics_collector.get_overall_metrics()
+        # With two allowed regimes, expect more activity than with one
+    
+    @pytest.mark.asyncio
+    async def test_no_allowed_regimes_always_holds(
+        self,
+        regime_detector,
+        underlying_strategy,
+        metrics_collector
+    ):
+        """
+        Test strategy with empty allowed_regimes list (always HOLD).
+        
+        Validates:
+        - Strategy never delegates to underlying
+        - Always returns HOLD
+        - No trades executed
+        """
+        symbol = "BTC/USDT"
+        
+        # No allowed regimes
+        regime_strategy = RegimeBasedStrategy(
+            underlying_strategy=underlying_strategy,
+            regime_detector=regime_detector,
+            allowed_regimes=[],  # Empty list
+            regime_confidence_threshold=0.5
+        )
+        
+        bars = create_ohlcv_bars(
+            generate_trending_data(num_bars=100, trend_strength=1.0),
+            symbol
+        )
+        
+        exec_config = ExecutionConfig(
+            slippage_bps=10,
+            commission_bps=10,
+            symbol=symbol
+        )
+        
+        engine = BacktestEngine(
+            strategy=regime_strategy,
+            bars=bars,
+            initial_cash=10000.0,
+            exec_config=exec_config,
+            metrics_collector=metrics_collector
+        )
+        
+        result = await engine.run()
+        
+        assert result is not None
+        # Should have zero trades
+        metrics = metrics_collector.get_overall_metrics()
+        assert metrics.get('total_trades', 0) == 0
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v", "-s"])

@@ -1,0 +1,84 @@
+# Live Data Config - Real Binance Data in Paper Mode
+# Uses actual market data for strategy testing without real money risk
+
+environment: paper
+
+exchange:
+  id: binance
+  testnet: false # Use real Binance (but paper mode broker)
+
+trading:
+  symbol: BTC/USDT
+  timeframe: 1h
+  initial_capital: 1000.0
+  fetch_limit: 500 # Request 500 candles to get ~21 days of 1h data
+
+strategy:
+  name: regime_based
+  allowed_regimes: [trending, quiet, volatile]
+  regime_confidence_threshold: 0.5
+  reduce_confidence_in_marginal_regimes: true
+
+  # Volatile policy configuration (enabled in volatile regime)
+  volatile_policy:
+    enabled: false # We already disabled this in fixed config, but explicit here
+    min_trend_strength: 0.5
+    confidence_scale: 0.7
+
+  # Multi-strategy aggregator for diverse signals
+  multi_strategy:
+    enabled: true
+    strategies:
+      - name: EMATrendStrategy
+        enabled: true
+        weight: 0.3
+        params:
+          fast_period: 9
+          slow_period: 21
+          signal_confidence: 0.7
+
+      - name: ContinuationStrategy
+        enabled: true
+        weight: 0.4
+        params:
+          lookback: 50
+          min_impulse_pct: 1.2
+          min_retracement: 0.15
+          max_retracement: 0.75
+          min_consolidation_candles: 3
+          max_consolidation_candles: 35
+          volume_surge_threshold: 1.1
+
+      - name: FVGStrategy
+        enabled: true
+        weight: 0.3
+        params:
+          lookback: 100
+          min_gap_size_pct: 0.2
+          max_gap_age: 150
+          require_volume_spike: false
+          require_momentum: false
+          min_fill_pct: 0.2
+          max_fill_pct: 0.98
+
+risk:
+  max_position_size: 0.01 # 1% of equity per trade
+  risk_per_trade: 0.02
+  max_daily_drawdown: 0.05
+  max_total_drawdown: 0.20
+  sizing_method: fixed_fractional # Use fixed % - no stop loss needed
+
+execution:
+  order_timeout: 30
+  max_retries: 3
+  retry_delay: 5
+
+monitoring:
+  log_level: INFO
+  log_file: logs/trading.log
+
+optimization:
+  enabled: false
+
+portfolio_risk:
+  enabled: false

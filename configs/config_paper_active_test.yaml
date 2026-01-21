@@ -1,0 +1,71 @@
+# Active pattern strategy test - FVG
+# Purpose: Generate frequent signals to validate execution flow (stops, fills, position sizing)
+# Run in PARALLEL with EMA test to compare
+
+environment: paper
+
+# Market data
+trading:
+  symbols:
+    - BTC/USDT
+
+  symbol: BTC/USDT
+  timeframe: 15m
+  fetch_limit: 200
+  initial_capital: 1000.0
+
+# Strategy - FVG (pattern-based, high frequency)
+strategy:
+  name: fvg
+
+  fvg:
+    lookback: 150
+    min_gap_size_pct: 0.3
+    require_volume_spike: false
+    require_momentum: false
+    max_gap_age: 150
+    min_fill_pct: 0.2
+    max_fill_pct: 0.98
+
+# Risk management
+risk:
+  position_sizing:
+    method: FIXED_RISK
+    risk_per_trade: 0.01
+    max_leverage: 5.0
+    min_confidence: 0.6
+
+  drawdown_guard:
+    enabled: true
+    max_drawdown_pct: 15.0
+
+  portfolio_risk:
+    enabled: true
+    max_positions: 1
+    max_correlation: 0.85
+    max_total_exposure_pct: 5.0
+
+# Execution
+execution:
+  mode: paper
+  order_timeout_seconds: 30
+  max_retries: 3
+
+# Monitoring
+logging:
+  level: INFO
+  log_file: logs/paper_active_test.log
+  log_signals: true
+  log_risk: true
+  log_execution: true
+
+# Health monitoring
+health_monitoring:
+  enabled: true
+  check_interval_seconds: 60
+
+# Kill switch
+kill_switch:
+  enabled: true
+  max_consecutive_losses: 5
+  max_daily_loss_pct: 10.0

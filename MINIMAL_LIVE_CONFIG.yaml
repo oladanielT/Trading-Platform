@@ -1,0 +1,52 @@
+# Minimal safe configuration for an initial sim-live / micro-live run
+environment: paper
+exchange:
+  id: binance
+  testnet: true
+
+trading:
+  symbol: BTC/USDT
+  timeframe: 1h
+  initial_capital: 1000.0 # micro-live: start small
+  fetch_limit: 500
+
+strategy:
+  name: ema_trend
+
+risk:
+  max_position_size: 0.001 # fraction of equity per position (very small)
+  risk_per_trade: 0.001 # 0.1% per trade
+  max_daily_drawdown: 0.01 # 1% daily hard cap
+  max_total_drawdown: 0.03 # 3% total cap
+  sizing_method: fixed_risk
+
+live_readiness:
+  enabled: true
+  sim_live: true # sim-live mode (no real execution)
+  sim_live_shadow: true # shadow fills (if available)
+
+optimization:
+  enabled: false
+
+portfolio_risk:
+  enabled: true
+  correlation_lookback: 100
+  max_pairwise_correlation: 0.6
+  max_symbol_exposure_pct: 0.05
+  max_directional_exposure_pct: 0.10
+  max_regime_exposure_pct: 0.10
+
+monitoring:
+  log_level: INFO
+  log_file: logs/sim_live.log
+
+kill_switch:
+  enabled: true
+  absolute_loss_limit: 50.0 # absolute USD stop (for small capital)
+  max_daily_loss_pct: 0.01 # 1% of equity
+  consecutive_loss_limit: 3
+
+# Explicit strategy allowlist — only these strategies will be allowed in micro-live
+strategy_allowlist:
+  - ema_trend
+# Operational notes: Use testnet API keys, a single symbol, and named operator on-call.
